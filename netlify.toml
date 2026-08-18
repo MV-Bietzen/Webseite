@@ -1,0 +1,35 @@
+# Netlify-Konfiguration für den Musikverein Cäcilia 1907 Bietzen e.V.
+#
+# Der [[redirects]]-Block leitet Anfragen an /api/ics serverseitig an den
+# Konzertmeister-Kalender weiter. Da der Browser dadurch nur noch die eigene
+# Domain aufruft, entfällt das CORS-Problem komplett.
+
+[[redirects]]
+  from = "/api/ics"
+  to = "https://rest.konzertmeister.app/api/v1/ical/422429ef-62e5-4d3c-9c5b-5c30bc913d2e?orgId=81108&history=false&global=true&includeOrgName=false&appointmentTypeIds=1,2,3&excludeMeetingPoints=true"
+  status = 200
+  force = true
+
+# Sicherheits-Header für alle Seiten
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Wappen, Icons und Schriften ändern sich praktisch nie -> ein Jahr cachen.
+# Dadurch lädt der Browser ab dem zweiten Besuch nur noch die HTML-Datei (~69 KB).
+# Wichtig: Wird ein Wappen ausgetauscht, sollte die Datei einen neuen Namen
+# bekommen (z.B. wappen-bietzen-2.png), damit der Browser die neue Version holt.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Die HTML-Datei selbst NICHT dauerhaft cachen, damit Änderungen an Texten
+# und Terminen sofort bei allen Besuchern ankommen.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
