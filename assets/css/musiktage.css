@@ -92,8 +92,14 @@
   .tag ul{list-style:none;}
   .tag li{display:flex; gap:1.2rem; padding:0.65rem 0; border-bottom:1px dashed rgba(107,18,32,0.12); align-items:baseline;}
   .tag li:last-child{border-bottom:none;}
-  .tag li .zeit{font-family:'Vereinscond', 'Arial Narrow', sans-serif; color:var(--burgundy); min-width:88px; font-size:0.92rem; font-weight:700; letter-spacing:0.02em;}
-  .tag li .was{font-size:1rem; color:var(--ink);}
+  .tag li .zeit{font-family:'Vereinscond', 'Arial Narrow', sans-serif; color:var(--burgundy); flex:0 0 104px; width:104px; font-size:0.92rem; font-weight:700; letter-spacing:0.02em;}
+  .tag li .was{font-size:1rem; color:var(--ink); flex:1; min-width:0;}
+  .tag li.kinder-row{align-items:flex-start;}
+  .tag li.kinder-row .zeitstrahl{margin-bottom:0;}
+  @media (max-width:640px){
+    .tag li.kinder-row{flex-direction:column; gap:0.5rem;}
+    .tag li.kinder-row .zeit{width:auto; flex-basis:auto;}
+  }
   .tag li .was a{text-decoration:underline; text-decoration-color:rgba(107,18,32,0.35); text-underline-offset:2px;}
   .tag li .was a:hover{color:var(--burgundy);}
   .tag li .was-logo{display:inline-flex; align-items:center; gap:0.6em; flex-wrap:wrap;}
