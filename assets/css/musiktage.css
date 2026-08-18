@@ -94,6 +94,8 @@
   .tag li:last-child{border-bottom:none;}
   .tag li .zeit{font-family:'Vereinscond', 'Arial Narrow', sans-serif; color:var(--burgundy); min-width:88px; font-size:0.92rem; font-weight:700; letter-spacing:0.02em;}
   .tag li .was{font-size:1rem; color:var(--ink);}
+  .tag li .was a{text-decoration:underline; text-decoration-color:rgba(107,18,32,0.35); text-underline-offset:2px;}
+  .tag li .was a:hover{color:var(--burgundy);}
   .tag li.highlight{background:rgba(201,162,39,0.14); border-bottom-color:rgba(201,162,39,0.3); margin:0 -1.2rem; padding:0.65rem 1.2rem; border-radius:var(--radius);}
   .tag li.highlight .zeit{color:var(--gold);}
   .tag li.highlight .was{font-weight:700;}
