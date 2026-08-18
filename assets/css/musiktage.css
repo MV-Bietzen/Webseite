@@ -99,10 +99,12 @@
   .tag li .was-logo{display:inline-flex; align-items:center; gap:0.6em; flex-wrap:wrap;}
   .tag li .was-logo a{display:inline-flex; align-items:center; gap:0.5em;}
   .logo-brassdur{height:1.9em; width:auto; display:block;}
-  .tag li.highlight{background:rgba(201,162,39,0.14); border-bottom-color:rgba(201,162,39,0.3); margin:0 -1.2rem; padding:0.65rem 1.2rem; border-radius:var(--radius);}
-  .tag li.highlight .zeit{color:var(--gold);}
-  .tag li.highlight .was{font-weight:700;}
-  .tag li.highlight .was::after{content:'★'; color:var(--gold); margin-left:0.5em; font-size:0.85em;}
+  .kacheln{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:1.4rem;}
+  .kachel{display:flex; align-items:center; gap:0.9rem; background:rgba(201,162,39,0.14); border:1px solid rgba(201,162,39,0.35); border-radius:var(--radius); padding:1rem 1.2rem;}
+  .kachel-icon{font-size:1.8rem; line-height:1; flex-shrink:0;}
+  .kachel-text{display:flex; flex-direction:column; gap:0.15rem;}
+  .kachel-text strong{font-size:1.02rem; color:var(--burgundy);}
+  .kachel-text span{font-size:0.88rem; color:var(--ink-soft);}
 
   /* Info-Karten */
   .infos{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.2rem; margin-top:3rem;}
