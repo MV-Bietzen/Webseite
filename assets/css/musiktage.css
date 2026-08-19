@@ -96,6 +96,8 @@
   .tag li .was{font-size:1rem; color:var(--ink); flex:1; min-width:0;}
   .tag li.kinder-row{align-items:flex-start;}
   .tag li.kinder-row .zeitstrahl{margin-bottom:0;}
+  .tag li.brassdur-row{align-items:flex-start;}
+  .tag li.brassdur-row .was{display:flex; flex-direction:column; align-items:flex-start; gap:0.7rem;}
   @media (max-width:640px){
     .tag li{flex-direction:column; align-items:flex-start; gap:0.3rem;}
     .tag li .zeit{width:auto; flex-basis:auto;}
@@ -105,7 +107,7 @@
   .tag li .was a:hover{color:var(--burgundy);}
   .tag li .was-logo{display:inline-flex; align-items:center; gap:0.6em; flex-wrap:wrap;}
   .tag li .was-logo a{display:inline-flex; align-items:center; gap:0.5em;}
-  .logo-brassdur{height:1.9em; width:auto; display:block;}
+  .logo-brassdur-big{width:100%; max-width:300px; height:auto; display:block;}
   .verein-wappen{height:1.7em; width:auto; display:block; flex-shrink:0;}
   .zeitstrahl{background:var(--cream-2); border-left:3px solid var(--gold); border-radius:var(--radius); padding:1.1rem 1.4rem 1.2rem; margin-bottom:1.4rem;}
   .zeitstrahl-label{font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; font-weight:700; color:var(--burgundy); margin-bottom:0.9rem;}
