@@ -97,8 +97,9 @@
   .tag li.kinder-row{align-items:flex-start;}
   .tag li.kinder-row .zeitstrahl{margin-bottom:0;}
   @media (max-width:640px){
-    .tag li.kinder-row{flex-direction:column; gap:0.5rem;}
-    .tag li.kinder-row .zeit{width:auto; flex-basis:auto;}
+    .tag li{flex-direction:column; align-items:flex-start; gap:0.3rem;}
+    .tag li .zeit{width:auto; flex-basis:auto;}
+    .tag li.kinder-row{gap:0.5rem;}
   }
   .tag li .was a{text-decoration:underline; text-decoration-color:rgba(107,18,32,0.35); text-underline-offset:2px;}
   .tag li .was a:hover{color:var(--burgundy);}
