@@ -730,6 +730,10 @@
     margin-top:1.6rem; font-size:0.9rem; color:var(--ink-soft);
   }
   .vorstand-hinweis a{color:var(--burgundy); text-decoration:underline; text-decoration-color:rgba(107,18,32,0.35);}
+  .vorstand-leitung{margin-top:2rem;}
+  .vorstand-leitung-titel{font-family:'Vereinsserif', Georgia, serif; font-size:1.15rem; color:var(--burgundy); margin-bottom:0.6rem;}
+  .vorstand-leitung-text{font-size:0.94rem; color:var(--ink-soft); max-width:68ch; margin-bottom:1.2rem;}
+  .vorstand-card-leitung{border-left-color:var(--gold);}
 
   /* ---------- KALENDER ABONNIEREN ---------- */
   .ics-subscribe{
