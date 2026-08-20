@@ -620,12 +620,6 @@
   }
   .ho-l-wert{font-size:1.02rem; color:var(--ink);}
   .ho-l-wert em{font-style:normal; display:block; font-size:0.85rem; color:var(--ink-soft); margin-top:0.1rem;}
-  .ho-liste-tags{align-items:start;}
-  .ho-tags{display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem;}
-  .ho-tags span{
-    font-size:0.82rem; color:var(--burgundy); background:var(--cream-2);
-    border-radius:var(--radius); padding:0.28rem 0.7rem;
-  }
 
   /* ---------- VEREINSMARSCH ---------- */
   .marsch-box{
@@ -723,7 +717,7 @@
   .vorstand-card .name em{font-style:normal; font-weight:400; font-size:0.85rem; color:var(--ink-soft); margin-left:0.4em;}
   .vorstand-beisitzer{
     margin-top:1rem; padding:1.1rem 1.3rem; border-radius:var(--radius);
-    background:#fff; border:1px solid rgba(107,18,32,0.1); border-left:3px solid var(--gold);
+    background:#fff; border:1px solid rgba(107,18,32,0.1); border-left:3px solid var(--burgundy);
     display:flex; flex-direction:column; gap:0.25rem;
   }
   .vorstand-beisitzer .name{font-size:1rem; color:var(--ink-soft);}
