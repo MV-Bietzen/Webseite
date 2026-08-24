@@ -127,6 +127,8 @@
   .zeitstrahl-liste li:last-child::after{display:none;}
   .zs-zeit{font-family:'Vereinscond', 'Arial Narrow', sans-serif; font-weight:700; color:var(--burgundy); font-size:0.85rem; min-width:88px;}
   .zs-was{font-size:0.92rem; color:var(--ink);}
+  .zs-was-logo{display:inline-flex; align-items:center; gap:0.6em; flex-wrap:wrap;}
+  .jo-logo{height:1.9em; width:auto; display:block; flex-shrink:0;}
 
   .kacheln{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:1.4rem;}
   .kachel{display:flex; align-items:center; gap:0.9rem; background:rgba(201,162,39,0.14); border:1px solid rgba(201,162,39,0.35); border-radius:var(--radius); padding:1rem 1.2rem;}
