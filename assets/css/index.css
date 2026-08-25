@@ -863,18 +863,11 @@
 
 
   .wappen{
-    width:52px; height:58px; flex-shrink:0;
-    background-size:contain; background-repeat:no-repeat; background-position:center;
+    height:58px; width:auto; max-width:100px; flex-shrink:0; display:block;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4));
     transition:transform 0.2s ease;
   }
   a.marquee-item:hover .wappen{transform:translateY(-2px) scale(1.06);}
-  .wappen-bietzen{background-image:url("../wappen-bietzen.png");}
-  .wappen-harlingen{background-image:url("../wappen-harlingen.png");}
-  .wappen-menningen{background-image:url("../wappen-menningen.png");}
-  .wappen-merzig{background-image:url("../wappen-merzig.png");}
-  .wappen-merzig-wadern{background-image:url("../wappen-merzig-wadern.png");}
-  .wappen-saarland{background-image:url("../wappen-saarland.png");}
 
   /* ---------- LEGAL MODALS (Impressum / Datenschutz) ---------- */
   .modal-overlay{
