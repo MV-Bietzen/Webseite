@@ -48,3 +48,51 @@
       if (open) closeModal(open.id.replace('modal-', ''));
     }
   });
+
+  (function flyerLightbox() {
+    const overlay = document.getElementById('modal-flyer');
+    const thumbs = document.querySelectorAll('.flyer-thumb[data-flyer-index]');
+    if (!overlay || !thumbs.length) return;
+    const track = overlay.querySelector('.flyer-track');
+    const slides = overlay.querySelectorAll('.flyer-slide');
+    const dots = overlay.querySelectorAll('.flyer-dots button');
+    const prevBtn = overlay.querySelector('.flyer-prev');
+    const nextBtn = overlay.querySelector('.flyer-next');
+    let current = 0;
+
+    function updateDots() {
+      dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+    function goTo(i, behavior) {
+      current = Math.max(0, Math.min(slides.length - 1, i));
+      slides[current].scrollIntoView({ behavior: behavior || 'smooth', inline: 'start', block: 'nearest' });
+      updateDots();
+    }
+
+    thumbs.forEach(t => {
+      t.addEventListener('click', e => {
+        e.preventDefault();
+        const idx = parseInt(t.getAttribute('data-flyer-index'), 10) || 0;
+        openModal('flyer');
+        requestAnimationFrame(() => goTo(idx, 'auto'));
+      });
+    });
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+
+    let scrollTimeout;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        current = Math.round(track.scrollLeft / track.clientWidth);
+        updateDots();
+      }, 100);
+    });
+
+    overlay.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') goTo(current + 1);
+      if (e.key === 'ArrowLeft') goTo(current - 1);
+    });
+  })();

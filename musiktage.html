@@ -246,13 +246,13 @@
       <div class="section-head">
         <p class="eyebrow">Zum Teilen</p>
         <h2>Unser Flyer</h2>
-        <p>Zum Ansehen, Speichern oder Weiterleiten — einfach auf ein Bild tippen, um es in voller Größe zu öffnen.</p>
+        <p>Zum Ansehen, Speichern oder Weiterleiten — einfach auf ein Bild tippen und durch alle Seiten wischen.</p>
       </div>
       <div class="flyer-grid">
-        <a href="assets/flyer/musiktage-2026-flyer-1.jpg" target="_blank" rel="noopener"><img src="assets/flyer/musiktage-2026-flyer-1.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 1: Titel"></a>
-        <a href="assets/flyer/musiktage-2026-flyer-2.jpg" target="_blank" rel="noopener"><img src="assets/flyer/musiktage-2026-flyer-2.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 2: Programm Samstag"></a>
-        <a href="assets/flyer/musiktage-2026-flyer-3.jpg" target="_blank" rel="noopener"><img src="assets/flyer/musiktage-2026-flyer-3.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 3: Programm Sonntag"></a>
-        <a href="assets/flyer/musiktage-2026-flyer-4.jpg" target="_blank" rel="noopener"><img src="assets/flyer/musiktage-2026-flyer-4.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 4: Programm Montag"></a>
+        <a href="assets/flyer/musiktage-2026-flyer-1.jpg" target="_blank" rel="noopener" class="flyer-thumb" data-flyer-index="0"><img src="assets/flyer/musiktage-2026-flyer-1.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 1: Titel"></a>
+        <a href="assets/flyer/musiktage-2026-flyer-2.jpg" target="_blank" rel="noopener" class="flyer-thumb" data-flyer-index="1"><img src="assets/flyer/musiktage-2026-flyer-2.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 2: Programm Samstag"></a>
+        <a href="assets/flyer/musiktage-2026-flyer-3.jpg" target="_blank" rel="noopener" class="flyer-thumb" data-flyer-index="2"><img src="assets/flyer/musiktage-2026-flyer-3.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 3: Programm Sonntag"></a>
+        <a href="assets/flyer/musiktage-2026-flyer-4.jpg" target="_blank" rel="noopener" class="flyer-thumb" data-flyer-index="3"><img src="assets/flyer/musiktage-2026-flyer-4.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 4: Programm Montag"></a>
       </div>
     </div>
   </section>
@@ -373,6 +373,33 @@
     </div>
   </div>
 </footer>
+
+<!-- Flyer Lightbox -->
+<div class="modal-overlay flyer-overlay" id="modal-flyer" role="dialog" aria-modal="true" aria-label="Flyer Bietzer Musiktage 2026" hidden>
+  <button class="modal-close flyer-close" data-modal-close aria-label="Schließen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="flyer-lightbox-box">
+    <button class="flyer-nav flyer-prev" type="button" aria-label="Vorherige Seite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="flyer-track">
+      <div class="flyer-slide"><img src="assets/flyer/musiktage-2026-flyer-1.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 1: Titel"></div>
+      <div class="flyer-slide"><img src="assets/flyer/musiktage-2026-flyer-2.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 2: Programm Samstag"></div>
+      <div class="flyer-slide"><img src="assets/flyer/musiktage-2026-flyer-3.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 3: Programm Sonntag"></div>
+      <div class="flyer-slide"><img src="assets/flyer/musiktage-2026-flyer-4.jpg" alt="Flyer Bietzer Musiktage 2026, Seite 4: Programm Montag"></div>
+    </div>
+    <button class="flyer-nav flyer-next" type="button" aria-label="Nächste Seite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+  <div class="flyer-dots" role="tablist" aria-label="Flyer-Seiten">
+    <button type="button" aria-label="Seite 1"></button>
+    <button type="button" aria-label="Seite 2"></button>
+    <button type="button" aria-label="Seite 3"></button>
+    <button type="button" aria-label="Seite 4"></button>
+  </div>
+</div>
 
 <!-- Impressum Modal -->
 <div class="modal-overlay" id="modal-impressum" role="dialog" aria-modal="true" aria-labelledby="impressum-title" hidden>
