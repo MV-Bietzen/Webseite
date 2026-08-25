@@ -868,6 +868,10 @@
     transition:transform 0.2s ease;
   }
   a.marquee-item:hover .wappen{transform:translateY(-2px) scale(1.06);}
+  .wappen-card{
+    box-sizing:border-box; background:#fff; padding:8px; border-radius:4px;
+    filter:none; box-shadow:0 3px 6px rgba(0,0,0,0.35);
+  }
 
   /* ---------- LEGAL MODALS (Impressum / Datenschutz) ---------- */
   .modal-overlay{
