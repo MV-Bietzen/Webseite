@@ -501,8 +501,8 @@
     function stepForward() {
       index++;
       scrollToIndex(index, true);
-      // Nach dem letzten Original unbemerkt an den Anfang zurueck
-      if (index >= origCount) {
+      // Nach dem letzten Original unbemerkt in die naechste Kopie zurueck
+      if (index >= origCount * 2) {
         setTimeout(() => {
           index -= origCount;
           scrollToIndex(index, false);
@@ -533,16 +533,19 @@
       originalItems.forEach(el => marqueeTrack.appendChild(el.cloneNode(true)));
 
       if (needsSwipe) {
-        // Kopie anhaengen, damit der Umlauf nahtlos wirkt
-        originalItems.forEach(el => {
+        // Kopien vor und nach den Originalen, damit der Umlauf in beide
+        // Richtungen nahtlos wirkt (auch rueckwaerts von Bietzen zu Saarland)
+        const makeCopy = el => {
           const copy = el.cloneNode(true);
           copy.setAttribute('aria-hidden', 'true');
           if (copy.tagName === 'A') copy.setAttribute('tabindex', '-1');
-          marqueeTrack.appendChild(copy);
-        });
+          return copy;
+        };
+        originalItems.slice().reverse().forEach(el => marqueeTrack.insertBefore(makeCopy(el), marqueeTrack.firstChild));
+        originalItems.forEach(el => marqueeTrack.appendChild(makeCopy(el)));
         swipeable = true;
-        index = 0;
-        requestAnimationFrame(() => scrollToIndex(0, false));
+        index = origCount;
+        requestAnimationFrame(() => scrollToIndex(index, false));
         startAuto();
       } else {
         swipeable = false;
@@ -557,9 +560,13 @@
       clearTimeout(scrollEndTimer);
       scrollEndTimer = setTimeout(() => {
         index = nearestIndex();
-        // Beim Wischen in die Kopie unbemerkt zurueck an den Anfang
-        if (index >= origCount) {
+        // Beim Wischen in eine der Randkopien unbemerkt in die Mitte zurueck,
+        // damit in beide Richtungen weitergewischt werden kann
+        if (index >= origCount * 2) {
           index -= origCount;
+          scrollToIndex(index, false);
+        } else if (index < origCount) {
+          index += origCount;
           scrollToIndex(index, false);
         }
       }, 140);
