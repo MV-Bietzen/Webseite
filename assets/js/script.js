@@ -339,11 +339,13 @@
     }
   }
 
-  loadICSCalendar();
-  setInterval(loadICSCalendar, ICS_REFRESH_MS);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') loadICSCalendar();
-  });
+  if (document.getElementById('icsContent')) {
+    loadICSCalendar();
+    setInterval(loadICSCalendar, ICS_REFRESH_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') loadICSCalendar();
+    });
+  }
 
   /* =========================================================
      KALENDER ABONNIEREN
@@ -451,7 +453,7 @@
 
   /* =========================================================
      ORTE-BAND
-     Ab 900px stehen alle vier Orte ruhig nebeneinander.
+     Ab 900px stehen alle Orte ruhig nebeneinander.
      Darunter laesst sich das Band wie auf dem Smartphone wischen:
      natives Scrollen mit Einrasten, ergaenzt um einen sanften
      Auto-Vorlauf, der beim Anfassen pausiert.
@@ -534,7 +536,7 @@
 
       if (needsSwipe) {
         // Kopien vor und nach den Originalen, damit der Umlauf in beide
-        // Richtungen nahtlos wirkt (auch rueckwaerts von Bietzen zu Saarland)
+        // Richtungen nahtlos wirkt (auch rueckwaerts vom ersten zum letzten Ort)
         const makeCopy = el => {
           const copy = el.cloneNode(true);
           copy.setAttribute('aria-hidden', 'true');
@@ -630,7 +632,7 @@
   }
 
   /* =========================================================
-     LEGAL MODALS (Impressum / Datenschutz)
+     LEGAL MODALS (Impressum / Datenschutz / Flyer-Lightbox)
      ========================================================= */
   let lastFocusedEl = null;
 
@@ -696,3 +698,56 @@
       if (open) closeModal(open.id.replace('modal-', ''));
     }
   });
+
+  /* =========================================================
+     FLYER-LIGHTBOX (Musiktage-Seite)
+     Öffnet die Flyer-Seiten als wischbares Karussell statt als
+     Direktlink; nutzt die generischen Modal-Funktionen oben.
+     ========================================================= */
+  (function flyerLightbox() {
+    const overlay = document.getElementById('modal-flyer');
+    const thumbs = document.querySelectorAll('.flyer-thumb[data-flyer-index]');
+    if (!overlay || !thumbs.length) return;
+    const track = overlay.querySelector('.flyer-track');
+    const slides = overlay.querySelectorAll('.flyer-slide');
+    const dots = overlay.querySelectorAll('.flyer-dots button');
+    const prevBtn = overlay.querySelector('.flyer-prev');
+    const nextBtn = overlay.querySelector('.flyer-next');
+    let current = 0;
+
+    function updateDots() {
+      dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+    function goTo(i, behavior) {
+      current = Math.max(0, Math.min(slides.length - 1, i));
+      slides[current].scrollIntoView({ behavior: behavior || 'smooth', inline: 'start', block: 'nearest' });
+      updateDots();
+    }
+
+    thumbs.forEach(t => {
+      t.addEventListener('click', e => {
+        e.preventDefault();
+        const idx = parseInt(t.getAttribute('data-flyer-index'), 10) || 0;
+        openModal('flyer');
+        requestAnimationFrame(() => goTo(idx, 'auto'));
+      });
+    });
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+
+    let scrollTimeout;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        current = Math.round(track.scrollLeft / track.clientWidth);
+        updateDots();
+      }, 100);
+    });
+
+    overlay.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') goTo(current + 1);
+      if (e.key === 'ArrowLeft') goTo(current - 1);
+    });
+  })();
