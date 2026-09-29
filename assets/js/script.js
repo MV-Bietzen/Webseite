@@ -42,6 +42,27 @@
     '© ' + new Date().getFullYear() + ' Musikverein Cäcilia 1907 Bietzen e.V.';
 
   /* =========================================================
+     COUNTDOWN JUBILÄUMSFEST 2027
+     ========================================================= */
+  (function jubilaeumCountdown() {
+    const el = document.getElementById('jubilaeumCountdown');
+    if (!el) return;
+    const zahl = el.querySelector('.countdown-zahl');
+    const zielDatum = new Date(2027, 6, 23); // 23. Juli 2027
+
+    function update() {
+      const heute = new Date();
+      heute.setHours(0, 0, 0, 0);
+      const tage = Math.round((zielDatum - heute) / 86400000);
+      if (tage < 0) { el.hidden = true; return; }
+      zahl.textContent = tage;
+      el.hidden = false;
+    }
+    update();
+    setInterval(update, 60 * 60 * 1000); // stündlich aktualisieren reicht
+  })();
+
+  /* =========================================================
      LIVE-TERMINE AUS ICS-KALENDER (Konzertmeister)
      ========================================================= */
 
