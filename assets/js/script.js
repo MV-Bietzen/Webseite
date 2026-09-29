@@ -43,23 +43,36 @@
 
   /* =========================================================
      COUNTDOWN JUBILÄUMSFEST 2027
+     Tickt sekündlich mit - vor allem zum Spaß.
      ========================================================= */
   (function jubilaeumCountdown() {
     const el = document.getElementById('jubilaeumCountdown');
     if (!el) return;
-    const zahl = el.querySelector('.countdown-zahl');
-    const zielDatum = new Date(2027, 6, 23); // 23. Juli 2027
+    const tageEl = el.querySelector('[data-unit="tage"]');
+    const stundenEl = el.querySelector('[data-unit="stunden"]');
+    const minutenEl = el.querySelector('[data-unit="minuten"]');
+    const sekundenEl = el.querySelector('[data-unit="sekunden"]');
+    const zielDatum = new Date(2027, 6, 23); // 23. Juli 2027, 00:00 Uhr
+    const pad = n => String(n).padStart(2, '0');
 
     function update() {
-      const heute = new Date();
-      heute.setHours(0, 0, 0, 0);
-      const tage = Math.round((zielDatum - heute) / 86400000);
-      if (tage < 0) { el.hidden = true; return; }
-      zahl.textContent = tage;
+      const restMs = zielDatum - new Date();
+      if (restMs <= 0) { el.hidden = true; return; }
+
+      const gesamtSekunden = Math.floor(restMs / 1000);
+      const tage = Math.floor(gesamtSekunden / 86400);
+      const stunden = Math.floor((gesamtSekunden % 86400) / 3600);
+      const minuten = Math.floor((gesamtSekunden % 3600) / 60);
+      const sekunden = gesamtSekunden % 60;
+
+      tageEl.textContent = tage;
+      stundenEl.textContent = pad(stunden);
+      minutenEl.textContent = pad(minuten);
+      sekundenEl.textContent = pad(sekunden);
       el.hidden = false;
     }
     update();
-    setInterval(update, 60 * 60 * 1000); // stündlich aktualisieren reicht
+    setInterval(update, 1000);
   })();
 
   /* =========================================================

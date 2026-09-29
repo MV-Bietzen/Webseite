@@ -195,11 +195,15 @@
           <span class="monat">Juli 2027</span>
         </div>
         <div class="event-text">
-          <h3>Unser Jubiläumsfest 2027</h3>
+          <h3 class="sr-only">Unser Jubiläumsfest 2027</h3>
+          <img src="assets/jubilaeumsfest-logo.png" alt="Jubiläumsfest Bietzen 2027 — 120 Jahre Musik, 100 Jahre Sport" class="event-logo">
           <p>Vier Tage Fest auf dem Bietzerberg — Programm und weitere Details folgen.</p>
-          <p class="countdown" id="jubilaeumCountdown" aria-live="polite" hidden>
-            <span class="countdown-zahl"></span><span class="countdown-label">Tage bis zum Fest</span>
-          </p>
+          <div class="countdown" id="jubilaeumCountdown" hidden>
+            <div class="countdown-item"><span class="countdown-zahl" data-unit="tage">–</span><span class="countdown-label">Tage</span></div>
+            <div class="countdown-item"><span class="countdown-zahl" data-unit="stunden">–</span><span class="countdown-label">Std</span></div>
+            <div class="countdown-item"><span class="countdown-zahl" data-unit="minuten">–</span><span class="countdown-label">Min</span></div>
+            <div class="countdown-item"><span class="countdown-zahl" data-unit="sekunden">–</span><span class="countdown-label">Sek</span></div>
+          </div>
         </div>
       </div>
 
