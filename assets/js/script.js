@@ -785,3 +785,42 @@
       if (e.key === 'ArrowLeft') goTo(current - 1);
     });
   })();
+
+  /* =========================================================
+     CHRONIK-SWIPE (mobil)
+     Koppelt die Jahres-Punkte oberhalb mit dem wischbaren
+     Chronik-Karussell darunter; greift nur, wenn die mobile
+     Swipe-Ansicht aktiv ist (steuert sich allein über CSS).
+     ========================================================= */
+  (function chronikSwipe() {
+    const nav = document.getElementById('chronikNav');
+    const track = document.getElementById('chronikListe');
+    if (!nav || !track) return;
+    const navItems = nav.querySelectorAll('.chronik-nav-item');
+    const slides = track.querySelectorAll('.chronik-item');
+    if (!navItems.length || navItems.length !== slides.length) return;
+    let current = 0;
+
+    function updateActive() {
+      navItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
+      navItems[current].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+    function goTo(i, behavior) {
+      current = Math.max(0, Math.min(slides.length - 1, i));
+      slides[current].scrollIntoView({ behavior: behavior || 'smooth', inline: 'start', block: 'nearest' });
+      updateActive();
+    }
+
+    navItems.forEach((item, i) => item.addEventListener('click', () => goTo(i)));
+
+    let scrollTimeout;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        current = Math.round(track.scrollLeft / track.clientWidth);
+        updateActive();
+      }, 100);
+    }, { passive: true });
+
+    updateActive();
+  })();
