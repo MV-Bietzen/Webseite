@@ -736,9 +736,9 @@
     }
 
     .chronik{
-      display:flex; flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x mandatory;
+      display:flex; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch; touch-action:pan-x; scrollbar-width:none; -ms-overflow-style:none;
-      overscroll-behavior-x:contain; border-left:0; padding:0; margin:0;
+      overscroll-behavior:contain; border-left:0; padding:0; margin:0;
     }
     .chronik::-webkit-scrollbar{display:none;}
     .chronik-item{
