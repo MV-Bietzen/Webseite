@@ -695,6 +695,83 @@
     .chronik-item::before{left:-2.15rem;}
   }
 
+  /* ---------- CHRONIK: Swipe-Modus (mobil) ---------- */
+  .chronik-nav, .chronik-hint{display:none;}
+
+  @media (max-width:759px){
+    .chronik-nav{
+      display:block; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity;
+      -webkit-overflow-scrolling:touch; touch-action:pan-x; scrollbar-width:none; -ms-overflow-style:none;
+      /* Padding links/rechts = halbe Kontainerbreite minus halbe Punktbreite,
+         damit auch der erste/letzte Punkt mittig zu stehen kommen kann
+         (zählt bei overflow:auto als zusätzlicher Scrollbereich). */
+      padding:0.45rem calc(50% - 2rem) 0.3rem; margin-bottom:1.4rem;
+    }
+    .chronik-nav::-webkit-scrollbar{display:none;}
+    .chronik-nav-track{
+      display:flex; align-items:flex-start; position:relative; width:max-content;
+    }
+    .chronik-nav-track::before{
+      content:''; position:absolute; top:7px; left:0.85rem; right:0.85rem;
+      height:2px; background:rgba(107,18,32,0.22); z-index:0;
+    }
+    .chronik-nav-item{
+      flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:0.5rem;
+      padding:0 0.85rem; position:relative; scroll-snap-align:center;
+      background:none; border:0; appearance:none; cursor:pointer;
+    }
+    .chronik-dot{
+      display:block; width:16px; height:16px; border-radius:50%;
+      border:2px solid var(--burgundy); background:var(--cream-2); position:relative; z-index:1;
+      transition:background 0.2s ease, transform 0.2s ease;
+    }
+    .chronik-nav-item.is-active .chronik-dot{background:var(--burgundy); transform:scale(1.25);}
+    .chronik-nav-jahr{
+      font-family:'Vereinscond', 'Arial Narrow', sans-serif; font-size:0.78rem;
+      letter-spacing:0.05em; color:var(--ink-soft); opacity:0.5; white-space:nowrap; font-weight:700;
+      transition:color 0.2s ease, opacity 0.2s ease;
+    }
+    .chronik-nav-item.is-active .chronik-nav-jahr{color:var(--burgundy); opacity:1;}
+
+    .chronik-hint{
+      display:block; text-align:center; font-size:0.78rem; color:var(--ink-soft);
+      opacity:0.65; margin:-0.6rem 0 1.2rem;
+    }
+
+    .chronik{
+      display:flex; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch; touch-action:pan-x; scrollbar-width:none; -ms-overflow-style:none;
+      overscroll-behavior:contain; border-left:0; padding:0; margin:0;
+    }
+    .chronik::-webkit-scrollbar{display:none;}
+    .chronik-item{
+      flex:0 0 100%; max-width:100%; box-sizing:border-box;
+      padding:0 0.2rem 0 0; scroll-snap-align:start; scroll-snap-stop:always;
+    }
+    .chronik-item::before{display:none;}
+    .chronik-item .jahr{display:none;}
+
+    /* Dort wo unterstützt: Punktreihe rein über CSS an den Scroll-
+       Fortschritt des Karussells koppeln (keine JS-Rundung/Timing-
+       Abweichung mehr, bewegt sich exakt proportional zum Text). */
+    @supports (animation-timeline: scroll()) {
+      #chronik{ timeline-scope: --chronik-progress; }
+      .chronik{ scroll-timeline: --chronik-progress x; }
+      .chronik-nav{
+        overflow:hidden; scroll-snap-type:none; touch-action:pan-x;
+        -webkit-overflow-scrolling:auto; -webkit-user-select:none; user-select:none;
+      }
+      .chronik-nav-track{
+        animation:chronik-nav-follow 1s linear both;
+        animation-timeline:--chronik-progress;
+      }
+      @keyframes chronik-nav-follow{
+        from{ transform:translateX(0); }
+        to{ transform:translateX(var(--chronik-nav-shift, 0px)); }
+      }
+    }
+  }
+
   /* ---------- HAUPTORCHESTER / VORSTAND ---------- */
   .ho-grid{display:grid; grid-template-columns:1.3fr 0.9fr; gap:3.2rem; align-items:start;}
   @media (max-width:820px){ .ho-grid{grid-template-columns:1fr; gap:2rem;} }

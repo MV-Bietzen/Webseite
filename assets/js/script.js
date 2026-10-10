@@ -785,3 +785,160 @@
       if (e.key === 'ArrowLeft') goTo(current - 1);
     });
   })();
+
+  /* =========================================================
+     CHRONIK-SWIPE (mobil)
+     Koppelt die Jahres-Punkte oberhalb mit dem wischbaren
+     Chronik-Karussell darunter; greift nur, wenn die mobile
+     Swipe-Ansicht aktiv ist (steuert sich allein über CSS).
+     ========================================================= */
+  (function chronikSwipe() {
+    const nav = document.getElementById('chronikNav');
+    const track = document.getElementById('chronikListe');
+    if (!nav || !track) return;
+    const navItems = nav.querySelectorAll('.chronik-nav-item');
+    const slides = track.querySelectorAll('.chronik-item');
+    if (!navItems.length || navItems.length !== slides.length) return;
+    const navTrack = nav.querySelector('.chronik-nav-track');
+    let current = 0;
+
+    // Für Browser mit Unterstützung für scroll-gebundene CSS-Animationen
+    // (siehe @supports im Stylesheet): wie weit die Punktreihe maximal nach
+    // links wandern muss, damit auch der letzte Punkt die Mitte erreicht.
+    function updateNavShift() {
+      if (!navTrack) return;
+      // nav.scrollWidth (nicht navTrack!) zählt das zentrierende Padding
+      // des Nav-Containers mit — erst dadurch stimmt der Gesamtweg.
+      const shift = Math.min(0, nav.clientWidth - nav.scrollWidth);
+      navTrack.style.setProperty('--chronik-nav-shift', shift + 'px');
+    }
+    updateNavShift();
+    window.addEventListener('resize', updateNavShift);
+
+    // Unterstützt der Browser scroll-gebundene CSS-Animationen (siehe
+    // @supports im Stylesheet), übernimmt CSS die Positionierung der
+    // Punktreihe komplett — hier dann nicht zusätzlich nav.scrollLeft
+    // setzen, sonst verschiebt sich alles doppelt (Chromium wendet
+    // scrollLeft trotz overflow:hidden tatsächlich an).
+    const cssDrivesPosition = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('animation-timeline', 'scroll()');
+
+    // Welcher Punkt aktiv markiert wird — bewusst entprellt (nicht bei
+    // jedem Frame), sonst flackert die Schrift beim Wischen, weil sie
+    // ständig zwischen fett und normal hin- und herspringt.
+    let activeTimeout;
+    function updateActive() {
+      current = Math.round(track.scrollLeft / track.clientWidth);
+      navItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
+    }
+    function scheduleActiveUpdate() {
+      clearTimeout(activeTimeout);
+      activeTimeout = setTimeout(updateActive, 80);
+    }
+
+    function syncNavPosition() {
+      if (cssDrivesPosition) return; // CSS übernimmt die Bewegung selbst
+      const trackMax = track.scrollWidth - track.clientWidth;
+      const navMax = nav.scrollWidth - nav.clientWidth;
+      const progress = trackMax > 0 ? track.scrollLeft / trackMax : 0;
+      nav.scrollLeft = progress * navMax;
+    }
+
+    // Fallback für Browser ohne scroll-gebundene CSS-Animationen: Der
+    // native scroll-Event feuert während einer aktiven Touch-Wischgeste
+    // oft nicht laufend, sondern erst gebündelt am Ende — darum wird die
+    // Scrollposition dort stattdessen per requestAnimationFrame abgefragt.
+    let lastScrollLeft = -1;
+    let idleFrames = 0;
+    let rafId = null;
+    function tick() {
+      if (track.scrollLeft !== lastScrollLeft) {
+        lastScrollLeft = track.scrollLeft;
+        syncNavPosition();
+        idleFrames = 0;
+      } else {
+        idleFrames++;
+      }
+      rafId = idleFrames < 15 ? requestAnimationFrame(tick) : null;
+    }
+    function ensureLoop() {
+      if (!cssDrivesPosition && rafId === null) {
+        idleFrames = 0;
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+    function goTo(i) {
+      current = Math.max(0, Math.min(slides.length - 1, i));
+      slides[current].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      ensureLoop();
+    }
+
+    let navDragged = false;
+    navItems.forEach((item, i) => item.addEventListener('click', () => {
+      if (navDragged) { navDragged = false; return; }
+      goTo(i);
+    }));
+    track.addEventListener('touchstart', ensureLoop, { passive: true });
+    track.addEventListener('scroll', () => { ensureLoop(); scheduleActiveUpdate(); }, { passive: true });
+
+    // Wischen direkt auf der Punktreihe soll den gesamten Chronik-Bereich
+    // bewegen, nicht nur lokal auf der Punktreihe wirken — die Geste wird
+    // darum ans eigentliche Karussell weitergereicht. Nur nötig, wenn die
+    // Punktreihe selbst nicht mehr scrollt (overflow:hidden, siehe CSS) —
+    // im Fallback scrollt sie weiterhin nativ, kein Weiterreichen nötig.
+    if (cssDrivesPosition) {
+      let navTouchStartX = null;
+      let navTouchStartScroll = 0;
+      let navTouchStartIndex = 0;
+      let navTouchDx = 0;
+      let dragFactor = 1;
+      nav.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        navTouchStartX = e.touches[0].clientX;
+        navTouchStartScroll = track.scrollLeft;
+        navTouchStartIndex = Math.round(track.scrollLeft / track.clientWidth);
+        navTouchDx = 0;
+        // Die Punktreihe legt pro Eintrag einen viel kürzeren Weg zurück als
+        // der Text — Fingerweg darum umrechnen, damit die Punkte dem Finger
+        // 1:1 folgen statt nur ein Bruchteil davon.
+        const navTravel = nav.scrollWidth - nav.clientWidth;
+        const trackTravel = track.scrollWidth - track.clientWidth;
+        dragFactor = navTravel > 0 ? trackTravel / navTravel : 1;
+        navDragged = false;
+        // scroll-snap-type:mandatory würde jede einzelne scrollLeft-
+        // Zuweisung sofort auf den nächsten Punkt zurückspringen lassen —
+        // während des Ziehens darum kurz deaktivieren.
+        track.style.scrollSnapType = 'none';
+        ensureLoop();
+      }, { passive: true });
+      nav.addEventListener('touchmove', (e) => {
+        if (navTouchStartX === null) return;
+        const dx = e.touches[0].clientX - navTouchStartX;
+        navTouchDx = dx;
+        if (Math.abs(dx) > 3) navDragged = true;
+        track.scrollLeft = navTouchStartScroll - dx * dragFactor;
+        scheduleActiveUpdate();
+      }, { passive: true });
+      nav.addEventListener('touchend', (e) => {
+        if (navTouchStartX === null) return;
+        const endTouch = e.changedTouches && e.changedTouches[0];
+        if (endTouch) navTouchDx = endTouch.clientX - navTouchStartX;
+        navTouchStartX = null;
+        track.style.scrollSnapType = '';
+        let target = Math.round(track.scrollLeft / track.clientWidth);
+        // Wie beim Text: schon ein kurzer Wisch blättert einen Eintrag
+        // weiter, statt auf den alten Punkt zurückzufallen.
+        if (target === navTouchStartIndex && Math.abs(navTouchDx) > 10) {
+          target += navTouchDx < 0 ? 1 : -1;
+        }
+        target = Math.max(0, Math.min(slides.length - 1, target));
+        slides[target].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+        scheduleActiveUpdate();
+        // Verhindert nur den Ghost-Click direkt nach dieser Geste — ein
+        // späterer, unabhängiger Tap soll nicht dauerhaft blockiert bleiben.
+        setTimeout(() => { navDragged = false; }, 400);
+      }, { passive: true });
+    }
+
+    syncNavPosition();
+    updateActive();
+  })();
