@@ -800,9 +800,10 @@
     const slides = track.querySelectorAll('.chronik-item');
     if (!navItems.length || navItems.length !== slides.length) return;
     let current = 0;
+    let lastScrollLeft = -1;
+    let idleFrames = 0;
+    let rafId = null;
 
-    // Läuft bei jedem Scroll-Tick (auch während des Wischens selbst),
-    // damit Punktreihe und Text sich wie ein einziges Objekt anfühlen.
     function syncNav() {
       const trackMax = track.scrollWidth - track.clientWidth;
       const navMax = nav.scrollWidth - nav.clientWidth;
@@ -811,13 +812,36 @@
       current = Math.round(track.scrollLeft / track.clientWidth);
       navItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
     }
+
+    // Der native scroll-Event feuert während einer aktiven Touch-Wischgeste
+    // nicht laufend, sondern oft erst gebündelt am Ende — darum wird die
+    // Scrollposition stattdessen per requestAnimationFrame abgefragt, damit
+    // Punktreihe und Text sich wirklich gleichzeitig bewegen.
+    function tick() {
+      if (track.scrollLeft !== lastScrollLeft) {
+        lastScrollLeft = track.scrollLeft;
+        syncNav();
+        idleFrames = 0;
+      } else {
+        idleFrames++;
+      }
+      rafId = idleFrames < 15 ? requestAnimationFrame(tick) : null;
+    }
+    function ensureLoop() {
+      if (rafId === null) {
+        idleFrames = 0;
+        rafId = requestAnimationFrame(tick);
+      }
+    }
     function goTo(i) {
       current = Math.max(0, Math.min(slides.length - 1, i));
       slides[current].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      ensureLoop();
     }
 
     navItems.forEach((item, i) => item.addEventListener('click', () => goTo(i)));
-    track.addEventListener('scroll', syncNav, { passive: true });
+    track.addEventListener('touchstart', ensureLoop, { passive: true });
+    track.addEventListener('scroll', ensureLoop, { passive: true });
 
     syncNav();
   })();
