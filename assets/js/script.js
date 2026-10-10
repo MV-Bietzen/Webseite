@@ -801,26 +801,23 @@
     if (!navItems.length || navItems.length !== slides.length) return;
     let current = 0;
 
-    function updateActive() {
+    // Läuft bei jedem Scroll-Tick (auch während des Wischens selbst),
+    // damit Punktreihe und Text sich wie ein einziges Objekt anfühlen.
+    function syncNav() {
+      const trackMax = track.scrollWidth - track.clientWidth;
+      const navMax = nav.scrollWidth - nav.clientWidth;
+      const progress = trackMax > 0 ? track.scrollLeft / trackMax : 0;
+      nav.scrollLeft = progress * navMax;
+      current = Math.round(track.scrollLeft / track.clientWidth);
       navItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
-      navItems[current].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
-    function goTo(i, behavior) {
+    function goTo(i) {
       current = Math.max(0, Math.min(slides.length - 1, i));
-      slides[current].scrollIntoView({ behavior: behavior || 'smooth', inline: 'start', block: 'nearest' });
-      updateActive();
+      slides[current].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
     }
 
     navItems.forEach((item, i) => item.addEventListener('click', () => goTo(i)));
+    track.addEventListener('scroll', syncNav, { passive: true });
 
-    let scrollTimeout;
-    track.addEventListener('scroll', () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        current = Math.round(track.scrollLeft / track.clientWidth);
-        updateActive();
-      }, 100);
-    }, { passive: true });
-
-    updateActive();
+    syncNav();
   })();
