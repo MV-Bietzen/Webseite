@@ -702,18 +702,17 @@
     .chronik-nav{
       display:block; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity;
       -webkit-overflow-scrolling:touch; touch-action:pan-x; scrollbar-width:none; -ms-overflow-style:none;
-      padding:0.45rem 0 0.3rem; margin-bottom:1.4rem;
+      /* Padding links/rechts = halbe Kontainerbreite minus halbe Punktbreite,
+         damit auch der erste/letzte Punkt mittig zu stehen kommen kann
+         (zählt bei overflow:auto als zusätzlicher Scrollbereich). */
+      padding:0.45rem calc(50% - 2rem) 0.3rem; margin-bottom:1.4rem;
     }
     .chronik-nav::-webkit-scrollbar{display:none;}
     .chronik-nav-track{
       display:flex; align-items:flex-start; position:relative; width:max-content;
-      /* Außenabstand = halbe Kontainerbreite minus halbe Punktbreite,
-         damit auch der erste/letzte Punkt mittig zu stehen kommen kann. */
-      padding:0 calc(50% - 2rem);
     }
     .chronik-nav-track::before{
-      content:''; position:absolute; top:7px;
-      left:calc(50% - 2rem + 0.85rem); right:calc(50% - 2rem + 0.85rem);
+      content:''; position:absolute; top:7px; left:0.85rem; right:0.85rem;
       height:2px; background:rgba(107,18,32,0.22); z-index:0;
     }
     .chronik-nav-item{
