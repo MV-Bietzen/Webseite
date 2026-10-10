@@ -758,8 +758,8 @@
       #chronik{ timeline-scope: --chronik-progress; }
       .chronik{ scroll-timeline: --chronik-progress x; }
       .chronik-nav{
-        overflow:hidden; scroll-snap-type:none; touch-action:auto;
-        -webkit-overflow-scrolling:auto;
+        overflow:hidden; scroll-snap-type:none; touch-action:pan-x;
+        -webkit-overflow-scrolling:auto; -webkit-user-select:none; user-select:none;
       }
       .chronik-nav-track{
         animation:chronik-nav-follow 1s linear both;

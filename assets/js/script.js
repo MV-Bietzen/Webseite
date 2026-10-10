@@ -801,9 +801,6 @@
     if (!navItems.length || navItems.length !== slides.length) return;
     const navTrack = nav.querySelector('.chronik-nav-track');
     let current = 0;
-    let lastScrollLeft = -1;
-    let idleFrames = 0;
-    let rafId = null;
 
     // Für Browser mit Unterstützung für scroll-gebundene CSS-Animationen
     // (siehe @supports im Stylesheet): wie weit die Punktreihe maximal nach
@@ -825,25 +822,38 @@
     // scrollLeft trotz overflow:hidden tatsächlich an).
     const cssDrivesPosition = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('animation-timeline', 'scroll()');
 
-    function syncNav() {
-      if (!cssDrivesPosition) {
-        const trackMax = track.scrollWidth - track.clientWidth;
-        const navMax = nav.scrollWidth - nav.clientWidth;
-        const progress = trackMax > 0 ? track.scrollLeft / trackMax : 0;
-        nav.scrollLeft = progress * navMax;
-      }
+    // Welcher Punkt aktiv markiert wird — bewusst entprellt (nicht bei
+    // jedem Frame), sonst flackert die Schrift beim Wischen, weil sie
+    // ständig zwischen fett und normal hin- und herspringt.
+    let activeTimeout;
+    function updateActive() {
       current = Math.round(track.scrollLeft / track.clientWidth);
       navItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
     }
+    function scheduleActiveUpdate() {
+      clearTimeout(activeTimeout);
+      activeTimeout = setTimeout(updateActive, 80);
+    }
 
-    // Der native scroll-Event feuert während einer aktiven Touch-Wischgeste
-    // nicht laufend, sondern oft erst gebündelt am Ende — darum wird die
-    // Scrollposition stattdessen per requestAnimationFrame abgefragt, damit
-    // Punktreihe und Text sich wirklich gleichzeitig bewegen.
+    function syncNavPosition() {
+      if (cssDrivesPosition) return; // CSS übernimmt die Bewegung selbst
+      const trackMax = track.scrollWidth - track.clientWidth;
+      const navMax = nav.scrollWidth - nav.clientWidth;
+      const progress = trackMax > 0 ? track.scrollLeft / trackMax : 0;
+      nav.scrollLeft = progress * navMax;
+    }
+
+    // Fallback für Browser ohne scroll-gebundene CSS-Animationen: Der
+    // native scroll-Event feuert während einer aktiven Touch-Wischgeste
+    // oft nicht laufend, sondern erst gebündelt am Ende — darum wird die
+    // Scrollposition dort stattdessen per requestAnimationFrame abgefragt.
+    let lastScrollLeft = -1;
+    let idleFrames = 0;
+    let rafId = null;
     function tick() {
       if (track.scrollLeft !== lastScrollLeft) {
         lastScrollLeft = track.scrollLeft;
-        syncNav();
+        syncNavPosition();
         idleFrames = 0;
       } else {
         idleFrames++;
@@ -851,7 +861,7 @@
       rafId = idleFrames < 15 ? requestAnimationFrame(tick) : null;
     }
     function ensureLoop() {
-      if (rafId === null) {
+      if (!cssDrivesPosition && rafId === null) {
         idleFrames = 0;
         rafId = requestAnimationFrame(tick);
       }
@@ -862,9 +872,52 @@
       ensureLoop();
     }
 
-    navItems.forEach((item, i) => item.addEventListener('click', () => goTo(i)));
+    let navDragged = false;
+    navItems.forEach((item, i) => item.addEventListener('click', () => {
+      if (navDragged) { navDragged = false; return; }
+      goTo(i);
+    }));
     track.addEventListener('touchstart', ensureLoop, { passive: true });
-    track.addEventListener('scroll', ensureLoop, { passive: true });
+    track.addEventListener('scroll', () => { ensureLoop(); scheduleActiveUpdate(); }, { passive: true });
 
-    syncNav();
+    // Wischen direkt auf der Punktreihe soll den gesamten Chronik-Bereich
+    // bewegen, nicht nur lokal auf der Punktreihe wirken — die Geste wird
+    // darum ans eigentliche Karussell weitergereicht. Nur nötig, wenn die
+    // Punktreihe selbst nicht mehr scrollt (overflow:hidden, siehe CSS) —
+    // im Fallback scrollt sie weiterhin nativ, kein Weiterreichen nötig.
+    if (cssDrivesPosition) {
+      let navTouchStartX = null;
+      let navTouchStartScroll = 0;
+      nav.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        navTouchStartX = e.touches[0].clientX;
+        navTouchStartScroll = track.scrollLeft;
+        navDragged = false;
+        // scroll-snap-type:mandatory würde jede einzelne scrollLeft-
+        // Zuweisung sofort auf den nächsten Punkt zurückspringen lassen —
+        // während des Ziehens darum kurz deaktivieren.
+        track.style.scrollSnapType = 'none';
+        ensureLoop();
+      }, { passive: true });
+      nav.addEventListener('touchmove', (e) => {
+        if (navTouchStartX === null) return;
+        const dx = e.touches[0].clientX - navTouchStartX;
+        if (Math.abs(dx) > 3) navDragged = true;
+        track.scrollLeft = navTouchStartScroll - dx;
+        scheduleActiveUpdate();
+      }, { passive: true });
+      nav.addEventListener('touchend', () => {
+        navTouchStartX = null;
+        track.style.scrollSnapType = '';
+        const nearest = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+        slides[nearest].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+        scheduleActiveUpdate();
+        // Verhindert nur den Ghost-Click direkt nach dieser Geste — ein
+        // späterer, unabhängiger Tap soll nicht dauerhaft blockiert bleiben.
+        setTimeout(() => { navDragged = false; }, 400);
+      }, { passive: true });
+    }
+
+    syncNavPosition();
+    updateActive();
   })();
