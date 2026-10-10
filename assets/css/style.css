@@ -729,9 +729,9 @@
     .chronik-nav-jahr{
       font-family:'Vereinscond', 'Arial Narrow', sans-serif; font-size:0.78rem;
       letter-spacing:0.05em; color:var(--ink-soft); opacity:0.5; white-space:nowrap;
-      transition:color 0.2s ease, opacity 0.2s ease, font-weight 0.2s ease;
+      transition:color 0.2s ease, opacity 0.2s ease;
     }
-    .chronik-nav-item.is-active .chronik-nav-jahr{color:var(--burgundy); opacity:1; font-weight:700;}
+    .chronik-nav-item.is-active .chronik-nav-jahr{color:var(--burgundy); opacity:1;}
 
     .chronik-hint{
       display:block; text-align:center; font-size:0.78rem; color:var(--ink-soft);

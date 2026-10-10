@@ -888,10 +888,21 @@
     if (cssDrivesPosition) {
       let navTouchStartX = null;
       let navTouchStartScroll = 0;
+      let navTouchStartIndex = 0;
+      let navTouchDx = 0;
+      let dragFactor = 1;
       nav.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
         navTouchStartX = e.touches[0].clientX;
         navTouchStartScroll = track.scrollLeft;
+        navTouchStartIndex = Math.round(track.scrollLeft / track.clientWidth);
+        navTouchDx = 0;
+        // Die Punktreihe legt pro Eintrag einen viel kürzeren Weg zurück als
+        // der Text — Fingerweg darum umrechnen, damit die Punkte dem Finger
+        // 1:1 folgen statt nur ein Bruchteil davon.
+        const navTravel = nav.scrollWidth - nav.clientWidth;
+        const trackTravel = track.scrollWidth - track.clientWidth;
+        dragFactor = navTravel > 0 ? trackTravel / navTravel : 1;
         navDragged = false;
         // scroll-snap-type:mandatory würde jede einzelne scrollLeft-
         // Zuweisung sofort auf den nächsten Punkt zurückspringen lassen —
@@ -902,15 +913,25 @@
       nav.addEventListener('touchmove', (e) => {
         if (navTouchStartX === null) return;
         const dx = e.touches[0].clientX - navTouchStartX;
+        navTouchDx = dx;
         if (Math.abs(dx) > 3) navDragged = true;
-        track.scrollLeft = navTouchStartScroll - dx;
+        track.scrollLeft = navTouchStartScroll - dx * dragFactor;
         scheduleActiveUpdate();
       }, { passive: true });
-      nav.addEventListener('touchend', () => {
+      nav.addEventListener('touchend', (e) => {
+        if (navTouchStartX === null) return;
+        const endTouch = e.changedTouches && e.changedTouches[0];
+        if (endTouch) navTouchDx = endTouch.clientX - navTouchStartX;
         navTouchStartX = null;
         track.style.scrollSnapType = '';
-        const nearest = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
-        slides[nearest].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+        let target = Math.round(track.scrollLeft / track.clientWidth);
+        // Wie beim Text: schon ein kurzer Wisch blättert einen Eintrag
+        // weiter, statt auf den alten Punkt zurückzufallen.
+        if (target === navTouchStartIndex && Math.abs(navTouchDx) > 10) {
+          target += navTouchDx < 0 ? 1 : -1;
+        }
+        target = Math.max(0, Math.min(slides.length - 1, target));
+        slides[target].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
         scheduleActiveUpdate();
         // Verhindert nur den Ghost-Click direkt nach dieser Geste — ein
         // späterer, unabhängiger Tap soll nicht dauerhaft blockiert bleiben.
