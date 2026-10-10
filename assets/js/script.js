@@ -799,16 +799,39 @@
     const navItems = nav.querySelectorAll('.chronik-nav-item');
     const slides = track.querySelectorAll('.chronik-item');
     if (!navItems.length || navItems.length !== slides.length) return;
+    const navTrack = nav.querySelector('.chronik-nav-track');
     let current = 0;
     let lastScrollLeft = -1;
     let idleFrames = 0;
     let rafId = null;
 
+    // Für Browser mit Unterstützung für scroll-gebundene CSS-Animationen
+    // (siehe @supports im Stylesheet): wie weit die Punktreihe maximal nach
+    // links wandern muss, damit auch der letzte Punkt die Mitte erreicht.
+    function updateNavShift() {
+      if (!navTrack) return;
+      // nav.scrollWidth (nicht navTrack!) zählt das zentrierende Padding
+      // des Nav-Containers mit — erst dadurch stimmt der Gesamtweg.
+      const shift = Math.min(0, nav.clientWidth - nav.scrollWidth);
+      navTrack.style.setProperty('--chronik-nav-shift', shift + 'px');
+    }
+    updateNavShift();
+    window.addEventListener('resize', updateNavShift);
+
+    // Unterstützt der Browser scroll-gebundene CSS-Animationen (siehe
+    // @supports im Stylesheet), übernimmt CSS die Positionierung der
+    // Punktreihe komplett — hier dann nicht zusätzlich nav.scrollLeft
+    // setzen, sonst verschiebt sich alles doppelt (Chromium wendet
+    // scrollLeft trotz overflow:hidden tatsächlich an).
+    const cssDrivesPosition = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('animation-timeline', 'scroll()');
+
     function syncNav() {
-      const trackMax = track.scrollWidth - track.clientWidth;
-      const navMax = nav.scrollWidth - nav.clientWidth;
-      const progress = trackMax > 0 ? track.scrollLeft / trackMax : 0;
-      nav.scrollLeft = progress * navMax;
+      if (!cssDrivesPosition) {
+        const trackMax = track.scrollWidth - track.clientWidth;
+        const navMax = nav.scrollWidth - nav.clientWidth;
+        const progress = trackMax > 0 ? track.scrollLeft / trackMax : 0;
+        nav.scrollLeft = progress * navMax;
+      }
       current = Math.round(track.scrollLeft / track.clientWidth);
       navItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
     }

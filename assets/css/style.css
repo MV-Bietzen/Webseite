@@ -750,6 +750,26 @@
     }
     .chronik-item::before{display:none;}
     .chronik-item .jahr{display:none;}
+
+    /* Dort wo unterstützt: Punktreihe rein über CSS an den Scroll-
+       Fortschritt des Karussells koppeln (keine JS-Rundung/Timing-
+       Abweichung mehr, bewegt sich exakt proportional zum Text). */
+    @supports (animation-timeline: scroll()) {
+      #chronik{ timeline-scope: --chronik-progress; }
+      .chronik{ scroll-timeline: --chronik-progress x; }
+      .chronik-nav{
+        overflow:hidden; scroll-snap-type:none; touch-action:auto;
+        -webkit-overflow-scrolling:auto;
+      }
+      .chronik-nav-track{
+        animation:chronik-nav-follow 1s linear both;
+        animation-timeline:--chronik-progress;
+      }
+      @keyframes chronik-nav-follow{
+        from{ transform:translateX(0); }
+        to{ transform:translateX(var(--chronik-nav-shift, 0px)); }
+      }
+    }
   }
 
   /* ---------- HAUPTORCHESTER / VORSTAND ---------- */
