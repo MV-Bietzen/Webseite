@@ -700,23 +700,26 @@
 
   @media (max-width:759px){
     .chronik-nav{
-      display:flex; align-items:flex-start; overflow-x:auto; scroll-snap-type:x proximity;
+      display:block; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity;
       -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none;
-      list-style:none; padding:0 0.5rem 0.3rem; margin-bottom:1.4rem;
+      padding:0.45rem 0.5rem 0.3rem; margin-bottom:1.4rem;
     }
     .chronik-nav::-webkit-scrollbar{display:none;}
+    .chronik-nav-track{
+      display:flex; align-items:flex-start; position:relative; width:max-content;
+    }
+    .chronik-nav-track::before{
+      content:''; position:absolute; top:7px; left:0.85rem; right:0.85rem; height:2px;
+      background:rgba(107,18,32,0.22); z-index:0;
+    }
     .chronik-nav-item{
       flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:0.5rem;
       padding:0 0.85rem; position:relative; scroll-snap-align:center;
       background:none; border:0; appearance:none; cursor:pointer;
     }
-    .chronik-nav-item:not(:first-child)::before{
-      content:''; position:absolute; top:7px; right:100%; width:1.7rem; height:2px;
-      background:rgba(107,18,32,0.22);
-    }
     .chronik-dot{
       display:block; width:16px; height:16px; border-radius:50%;
-      border:2px solid var(--burgundy); background:var(--cream-2);
+      border:2px solid var(--burgundy); background:var(--cream-2); position:relative; z-index:1;
       transition:background 0.2s ease, transform 0.2s ease;
     }
     .chronik-nav-item.is-active .chronik-dot{background:var(--burgundy); transform:scale(1.25);}
@@ -735,12 +738,12 @@
     .chronik{
       display:flex; flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none;
-      border-left:0; padding:0; margin:0;
+      overscroll-behavior-x:contain; border-left:0; padding:0; margin:0;
     }
     .chronik::-webkit-scrollbar{display:none;}
     .chronik-item{
       flex:0 0 100%; max-width:100%; box-sizing:border-box;
-      padding:0 0.2rem 0 0; scroll-snap-align:start;
+      padding:0 0.2rem 0 0; scroll-snap-align:start; scroll-snap-stop:always;
     }
     .chronik-item::before{display:none;}
     .chronik-item .jahr{display:none;}
