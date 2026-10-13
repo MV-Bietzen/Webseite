@@ -1,0 +1,11 @@
+{
+  "name": "mv-bietzen-webseite",
+  "private": true,
+  "description": "Webseite des Musikverein Cäcilia 1907 Bietzen e.V. — Abhängigkeiten nur für die Netlify Functions",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.4"
+  }
+}

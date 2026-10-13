@@ -942,3 +942,76 @@
     syncNavPosition();
     updateActive();
   })();
+
+  /* =========================================================
+     AKTUELLES (Facebook-Beiträge)
+     Die Beiträge holt eine Netlify Function stündlich über die
+     Graph API ab; hier wird nur noch unser eigener Endpunkt gelesen.
+     Ohne Beiträge (oder lokal ohne Netlify) bleibt der Bereich
+     ausgeblendet.
+     ========================================================= */
+  (function facebookFeed() {
+    const section = document.getElementById('aktuelles');
+    const list = document.getElementById('fbPosts');
+    if (!section || !list) return;
+    const more = document.getElementById('fbMore');
+    const isFacebookLink = (url) => typeof url === 'string' && /^https:\/\/([a-z0-9-]+\.)*facebook\.com\//i.test(url);
+    const dateFmt = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    fetch('/api/facebook')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((feed) => {
+        if (!feed || !Array.isArray(feed.posts) || !feed.posts.length) return;
+
+        feed.posts.forEach((post) => {
+          const article = document.createElement('article');
+          article.className = 'fb-post';
+
+          if (typeof post.image === 'string' && post.image.startsWith('/api/facebook-bild/')) {
+            const img = document.createElement('img');
+            img.src = post.image;
+            img.alt = '';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            article.appendChild(img);
+          }
+
+          const body = document.createElement('div');
+          body.className = 'fb-post-body';
+
+          const date = post.date ? new Date(post.date) : null;
+          if (date && !Number.isNaN(date.getTime())) {
+            const time = document.createElement('time');
+            time.dateTime = post.date;
+            time.textContent = dateFmt.format(date);
+            body.appendChild(time);
+          }
+
+          if (post.text) {
+            const p = document.createElement('p');
+            p.textContent = post.text;
+            body.appendChild(p);
+          }
+
+          if (isFacebookLink(post.link)) {
+            const a = document.createElement('a');
+            a.className = 'btn-link';
+            a.href = post.link;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = 'Auf Facebook ansehen →';
+            body.appendChild(a);
+          }
+
+          article.appendChild(body);
+          list.appendChild(article);
+        });
+
+        if (more && feed.page && isFacebookLink(feed.page.link)) {
+          more.querySelector('a').href = feed.page.link;
+          more.hidden = false;
+        }
+        section.hidden = false;
+      })
+      .catch(() => {});
+  })();
