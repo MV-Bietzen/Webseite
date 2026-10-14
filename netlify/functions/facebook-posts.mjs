@@ -15,21 +15,27 @@ const json = (body, status = 200, maxAge = 300) =>
   });
 
 export default async () => {
-  if (!isConfigured()) return json({ posts: [] }, 503, 60);
+  if (!isConfigured()) {
+    console.log('FB_PAGE_ID / FB_PAGE_TOKEN fehlen in diesem Deploy.');
+    return json({ posts: [], reason: 'not-configured' }, 503, 60);
+  }
 
   const store = facebookStore();
   let feed = await store.get(FEED_KEY, { type: 'json' });
+  let error = null;
 
   const age = feed ? Date.now() - new Date(feed.updated).getTime() : Infinity;
   if (!(age < STALE_MS)) {
     try {
       feed = await syncFacebook(store);
     } catch (err) {
-      console.error('Facebook-Abruf fehlgeschlagen:', err.message);
+      error = err.message;
+      console.error('Facebook-Abruf fehlgeschlagen:', error);
     }
   }
 
-  if (!feed) return json({ posts: [] }, 503, 60);
+  // Die Graph-Fehlermeldung enthält nie den Token, nur Code und Text.
+  if (!feed) return json({ posts: [], reason: 'fetch-failed', error }, 503, 60);
   return json(feed);
 };
 
