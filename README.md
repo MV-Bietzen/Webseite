@@ -48,9 +48,13 @@ Meta. Benötigte Umgebungsvariablen in Netlify (*Site configuration → Environm
 - `FB_PAGE_ID` — ID der Facebook-Seite
 - `FB_PAGE_TOKEN` — dauerhafter Seiten-Zugriffstoken mit `pages_read_engagement`
   und für Instagram zusätzlich `instagram_basic`; als *Secret* markieren
-- `IG_USER_ID` — optional; sonst wird das mit der Seite verknüpfte Instagram-Konto genutzt
+- `IG_ACCESS_TOKEN` — Instagram-Token aus der „Instagram API mit Instagram-Login“
+  (Berechtigung `instagram_business_basic`); damit ist keine Verknüpfung mit der
+  Facebook-Seite nötig. Der Token wird wöchentlich automatisch verlängert und im
+  Blob Store gespeichert. Ohne diese Variable wird das mit der Seite verknüpfte
+  Konto über `FB_PAGE_TOKEN` (zusätzlich `instagram_basic`) genutzt.
+- `IG_USER_ID` — optional für den Weg über die Facebook-Seite
 - `FB_GRAPH_VERSION` — optional, Standard `v24.0`
 
-Instagram muss ein Business- oder Creator-Konto sein, das mit der Facebook-Seite
-verknüpft ist. Läuft der Token ab, bleibt der letzte Stand sichtbar. Den Grund für
+Instagram muss in beiden Fällen ein Business- oder Creator-Konto sein. Läuft der Token ab, bleibt der letzte Stand sichtbar. Den Grund für
 fehlende Beiträge zeigen `/api/facebook` bzw. `/api/instagram` im Feld `reason`.

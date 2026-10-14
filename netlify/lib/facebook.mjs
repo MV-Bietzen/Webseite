@@ -1,8 +1,8 @@
-// Holt die neuesten Beiträge der Facebook-Seite und des verknüpften
-// Instagram-Profils über die Graph API und legt sie samt Bildern im Netlify
-// Blob Store ab. Die Webseite liest danach nur noch aus diesem Speicher —
+// Holt die neuesten Beiträge der Facebook-Seite und des Instagram-Profils
+// über die Graph API und legt sie samt Bildern im Netlify Blob Store ab. Die Webseite liest danach nur noch aus diesem Speicher —
 // Besucher laden nichts von Facebook oder Instagram.
 
+import { createHash } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 
 const MAX_POSTS = 6;
@@ -18,20 +18,22 @@ export const FEED_KEY = 'feed';
 export const IMAGE_PREFIX = 'img/';
 export const IG_FEED_KEY = 'instagram';
 export const IG_IMAGE_PREFIX = 'ig/';
+const IG_TOKEN_KEY = 'ig-token';
+const IG_REFRESH_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function facebookStore() {
   return getStore({ name: 'facebook', consistency: 'strong' });
 }
 
-function graphBase() {
-  const version = process.env.FB_GRAPH_VERSION || 'v24.0';
-  return `https://graph.facebook.com/${version}`;
-}
+const graphVersion = () => process.env.FB_GRAPH_VERSION || 'v24.0';
 
-async function graphGet(path, params) {
-  const url = new URL(`${graphBase()}/${path}`);
+async function graphGet(path, params, {
+  base = `https://graph.facebook.com/${graphVersion()}`,
+  token = process.env.FB_PAGE_TOKEN,
+} = {}) {
+  const url = new URL(`${base}/${path}`);
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
-  url.searchParams.set('access_token', process.env.FB_PAGE_TOKEN);
+  url.searchParams.set('access_token', token);
   const res = await fetch(url);
   const body = await res.json().catch(() => ({}));
   if (!res.ok || body.error) {
@@ -79,6 +81,10 @@ export function isConfigured() {
   return Boolean(process.env.FB_PAGE_ID && process.env.FB_PAGE_TOKEN);
 }
 
+export function isInstagramConfigured() {
+  return Boolean(process.env.IG_ACCESS_TOKEN) || isConfigured();
+}
+
 export async function syncFacebook(store = facebookStore()) {
   const pageId = process.env.FB_PAGE_ID;
 
@@ -124,18 +130,58 @@ export async function syncFacebook(store = facebookStore()) {
   return feed;
 }
 
-// Das Instagram-Profil muss ein Business- oder Creator-Konto sein, das mit
-// der Facebook-Seite verknüpft ist; der Seiten-Token braucht instagram_basic.
+// Instagram-Token der "Instagram API mit Instagram-Login" läuft nach 60 Tagen
+// ab. Er wird darum wöchentlich verlängert und der neue Stand im Blob Store
+// abgelegt; wird IG_ACCESS_TOKEN in Netlify ersetzt, gilt wieder dieser.
+async function instagramToken(store) {
+  const envToken = process.env.IG_ACCESS_TOKEN;
+  const source = createHash('sha256').update(envToken).digest('hex');
+  const saved = await store.get(IG_TOKEN_KEY, { type: 'json' });
+  const current = saved && saved.source === source ? saved : { token: envToken, refreshedAt: 0 };
+
+  if (Date.now() - new Date(current.refreshedAt).getTime() > IG_REFRESH_MS) {
+    try {
+      const res = await graphGet('refresh_access_token', { grant_type: 'ig_refresh_token' }, {
+        base: 'https://graph.instagram.com',
+        token: current.token,
+      });
+      if (res.access_token) {
+        current.token = res.access_token;
+        current.refreshedAt = new Date().toISOString();
+        await store.setJSON(IG_TOKEN_KEY, { token: current.token, source, refreshedAt: current.refreshedAt });
+      }
+    } catch (err) {
+      // Frisch erzeugte Tokens lassen sich erst nach 24 Stunden verlängern.
+      console.warn('Instagram-Token nicht verlängert:', err.message);
+    }
+  }
+  return current.token;
+}
+
+// Zwei Wege: mit IG_ACCESS_TOKEN über die "Instagram API mit Instagram-Login"
+// (keine Verknüpfung mit der Facebook-Seite nötig), sonst über das mit der
+// Facebook-Seite verknüpfte Konto (Seiten-Token braucht instagram_basic).
+// In beiden Fällen muss das Instagram-Profil ein Business- oder Creator-Konto sein.
 export async function syncInstagram(store = facebookStore()) {
-  let igId = process.env.IG_USER_ID;
-  if (!igId) {
-    const page = await graphGet(process.env.FB_PAGE_ID, { fields: 'instagram_business_account' });
-    igId = page.instagram_business_account && page.instagram_business_account.id;
-    if (!igId) throw new Error('Kein Instagram-Konto mit der Facebook-Seite verknüpft');
+  let igId;
+  let request;
+  if (process.env.IG_ACCESS_TOKEN) {
+    const token = await instagramToken(store);
+    const options = { base: `https://graph.instagram.com/${graphVersion()}`, token };
+    request = (path, params) => graphGet(path, params, options);
+    igId = 'me';
+  } else {
+    request = graphGet;
+    igId = process.env.IG_USER_ID;
+    if (!igId) {
+      const page = await graphGet(process.env.FB_PAGE_ID, { fields: 'instagram_business_account' });
+      igId = page.instagram_business_account && page.instagram_business_account.id;
+      if (!igId) throw new Error('Kein Instagram-Konto mit der Facebook-Seite verknüpft');
+    }
   }
 
-  const profile = await graphGet(igId, { fields: 'username' });
-  const { data = [] } = await graphGet(`${igId}/media`, {
+  const profile = await request(igId, { fields: 'username' });
+  const { data = [] } = await request(`${igId}/media`, {
     fields: 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp',
     limit: '15',
   });
@@ -184,9 +230,9 @@ const json = (body, status = 200, maxAge = 300) =>
 
 // Antwort für /api/facebook bzw. /api/instagram. Bei fehlenden Beiträgen
 // steht der Grund in "reason" — die Graph-Fehlermeldung enthält nie den Token.
-export async function serveFeed(key, sync) {
-  if (!isConfigured()) {
-    console.log('FB_PAGE_ID / FB_PAGE_TOKEN fehlen in diesem Deploy.');
+export async function serveFeed(key, sync, configured = isConfigured) {
+  if (!configured()) {
+    console.log(`Zugangsdaten für ${key} fehlen in diesem Deploy.`);
     return json({ posts: [], reason: 'not-configured' }, 503, 60);
   }
 
