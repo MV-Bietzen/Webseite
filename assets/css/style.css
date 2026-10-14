@@ -675,6 +675,29 @@
   }
   .fb-post .btn-link{margin-top:auto; align-self:flex-start;}
   .fb-more{margin-top:1.8rem; text-align:center;}
+  .fb-grid:empty{display:none;}
+
+  .ig-block{margin-top:3rem;}
+  .fb-grid:empty ~ .ig-block{margin-top:0;}
+  .ig-title{
+    font-family:'Vereinsserif', Georgia, serif; font-size:1.35rem; font-weight:600;
+    color:var(--burgundy); margin-bottom:1rem;
+  }
+  .ig-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:0.6rem;}
+  @media (max-width:680px){ .ig-grid{grid-template-columns:repeat(2, 1fr);} }
+  .ig-tile{
+    position:relative; display:block; aspect-ratio:1; overflow:hidden;
+    background:var(--cream-2); border-radius:var(--radius);
+  }
+  .ig-tile img{width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.3s ease;}
+  a.ig-tile:hover img{transform:scale(1.04);}
+  a.ig-tile:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .ig-tile .ig-video{
+    position:absolute; top:0.5rem; right:0.5rem; width:26px; height:26px; border-radius:50%;
+    background:rgba(0,0,0,0.45); color:#fff; display:flex; align-items:center; justify-content:center;
+  }
+  .ig-tile .ig-video svg{width:12px; height:12px; margin-left:2px;}
+  @media (prefers-reduced-motion: reduce){ .ig-tile img{transition:none;} }
 
   /* ---------- CHRONIK ---------- */
   .chronik{

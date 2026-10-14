@@ -5,13 +5,13 @@ Statischer One-Pager, live unter **[mv-bietzen.de](https://mv-bietzen.de)** (Hos
 ## Aufbau
 
 Reines HTML/CSS/JavaScript, kein Build-Prozess nötig. Nur die Netlify Functions
-für die Facebook-Beiträge haben eine Abhängigkeit (`package.json`).
+für die Facebook- und Instagram-Beiträge haben eine Abhängigkeit (`package.json`).
 
 ```
 index.html          Startseite
 musiktage.html       Unterseite Bietzer Musiktage
 netlify.toml         Kalender-Proxy (/api/ics) + Caching-Regeln
-netlify/functions/   Facebook-Abruf (stündlich) + /api/facebook, /api/facebook-bild/:id
+netlify/functions/   Abruf (stündlich) + /api/facebook, /api/instagram und Bild-Routen
 netlify/lib/         gemeinsame Abruflogik (Graph API → Netlify Blobs)
 robots.txt / sitemap.xml
 favicon.png
@@ -35,19 +35,22 @@ assets/
 
 ## Abschnitte (index.html)
 
-Hero → Der Verein → Termine → Aktuelles (Facebook, nur sichtbar wenn Beiträge da) → Nachwuchs → Hauptorchester → Vorstand →
+Hero → Der Verein → Termine → Aktuelles (Facebook/Instagram, nur sichtbar wenn Beiträge da) → Nachwuchs → Hauptorchester → Vorstand →
 Chronik → Kontakt → Mitglied werden → Orte-Band → Footer
 
-## Facebook-Beiträge („Aktuelles")
+## Facebook- und Instagram-Beiträge („Aktuelles")
 
-Eine Scheduled Function holt stündlich die neuesten Beiträge der Vereinsseite über die
-Facebook Graph API und speichert Texte und Bilder in Netlify Blobs. Besucher laden
-dadurch nichts direkt von Facebook. Benötigte Umgebungsvariablen in Netlify
-(*Site configuration → Environment variables*):
+Eine Scheduled Function (`facebook-sync`) holt stündlich die neuesten Beiträge der
+Facebook-Seite und des damit verknüpften Instagram-Profils über die Graph API und
+speichert Texte und Bilder in Netlify Blobs. Besucher laden dadurch nichts direkt von
+Meta. Benötigte Umgebungsvariablen in Netlify (*Site configuration → Environment variables*):
 
 - `FB_PAGE_ID` — ID der Facebook-Seite
-- `FB_PAGE_TOKEN` — dauerhafter Seiten-Zugriffstoken (Berechtigung `pages_read_engagement`), als *Secret* markieren
+- `FB_PAGE_TOKEN` — dauerhafter Seiten-Zugriffstoken mit `pages_read_engagement`
+  und für Instagram zusätzlich `instagram_basic`; als *Secret* markieren
+- `IG_USER_ID` — optional; sonst wird das mit der Seite verknüpfte Instagram-Konto genutzt
 - `FB_GRAPH_VERSION` — optional, Standard `v24.0`
 
-Läuft der Token ab, bleibt der letzte Stand sichtbar; Fehler stehen im Function-Log
-von `facebook-sync`.
+Instagram muss ein Business- oder Creator-Konto sein, das mit der Facebook-Seite
+verknüpft ist. Läuft der Token ab, bleibt der letzte Stand sichtbar. Den Grund für
+fehlende Beiträge zeigen `/api/facebook` bzw. `/api/instagram` im Feld `reason`.
