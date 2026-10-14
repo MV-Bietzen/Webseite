@@ -251,6 +251,8 @@ export async function serveFeed(key, sync, configured = isConfigured) {
   }
 
   if (!feed) return json({ posts: [], reason: 'fetch-failed', error }, 503, 60);
+  // Gespeicherter Stand wird weiter angezeigt, der neue Abruf ist aber gescheitert.
+  if (error) return json({ ...feed, refreshError: error }, 200, 60);
   return json(feed);
 }
 
