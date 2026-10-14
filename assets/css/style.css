@@ -657,6 +657,25 @@
     .map-consent, .map-frame{height:280px;}
   }
 
+  /* ---------- AKTUELLES (Facebook-Beiträge) ---------- */
+  .fb-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.4rem;}
+  .fb-post{
+    background:#fff; border:1px solid rgba(107,18,32,0.1); border-radius:var(--radius);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .fb-post img{width:100%; aspect-ratio:4/3; object-fit:cover; display:block; background:var(--cream-2);}
+  .fb-post-body{padding:1.2rem 1.4rem 1.4rem; display:flex; flex-direction:column; gap:0.6rem; flex:1;}
+  .fb-post time{
+    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase;
+    letter-spacing:0.08em; font-size:0.75rem; color:var(--burgundy);
+  }
+  .fb-post p{
+    font-size:0.94rem; color:var(--ink-soft); white-space:pre-line; overflow-wrap:anywhere;
+    display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .fb-post .btn-link{margin-top:auto; align-self:flex-start;}
+  .fb-more{margin-top:1.8rem; text-align:center;}
+
   /* ---------- CHRONIK ---------- */
   .chronik{
     list-style:none; position:relative; margin:0; padding:0 0 0 1.2rem;
