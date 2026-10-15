@@ -1074,7 +1074,7 @@
   .contact-info dd a:hover{border-color:var(--burgundy);}
   .socials{display:flex; gap:0.9rem; margin-top:2rem;}
   .socials a{
-    width:42px; height:42px; border-radius:50%; border:1px solid rgba(107,18,32,0.2); background:#fff;
+    width:48px; height:48px; border-radius:50%; border:1px solid rgba(107,18,32,0.2); background:#fff;
     display:flex; align-items:center; justify-content:center; text-decoration:none;
     transition:border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
