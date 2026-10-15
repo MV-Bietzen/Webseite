@@ -1074,10 +1074,13 @@
   .contact-info dd a:hover{border-color:var(--burgundy);}
   .socials{display:flex; gap:0.9rem; margin-top:2rem;}
   .socials a{
-    width:38px; height:38px; border-radius:50%; border:1px solid rgba(107,18,32,0.25); display:flex; align-items:center; justify-content:center; color:var(--burgundy); text-decoration:none; transition:all 0.2s ease;
+    width:42px; height:42px; border-radius:50%; border:1px solid rgba(107,18,32,0.2); background:#fff;
+    display:flex; align-items:center; justify-content:center; text-decoration:none;
+    transition:border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .socials a:hover{background:var(--burgundy); color:#fff;}
-  .socials svg{width:17px; height:17px;}
+  .socials a:hover{border-color:var(--burgundy); transform:translateY(-2px); box-shadow:0 6px 14px rgba(107,18,32,0.12);}
+  .socials a:focus-visible{outline:2px solid var(--burgundy); outline-offset:3px;}
+  .socials img{display:block; height:auto;}
 
   form.contact-form{display:grid; gap:1.2rem; background:#fff; padding:2.2rem; border-radius:var(--radius); border:1px solid rgba(107,18,32,0.12);}
   .form-row{display:grid; gap:0.4rem;}
