@@ -1,16 +1,23 @@
-import { isConfigured, syncFacebook } from '../lib/facebook.mjs';
+import { isConfigured, isInstagramConfigured, syncFacebook, syncInstagram } from '../lib/facebook.mjs';
 
 export default async () => {
-  if (!isConfigured()) {
-    console.log('Facebook-Abruf übersprungen: FB_PAGE_ID / FB_PAGE_TOKEN fehlen.');
-    return;
-  }
-  try {
-    const feed = await syncFacebook();
-    console.log(`Facebook-Abruf ok: ${feed.posts.length} Beiträge.`);
-  } catch (err) {
-    // Alter Stand bleibt im Speicher und wird weiter angezeigt.
-    console.error('Facebook-Abruf fehlgeschlagen:', err.message);
+  const channels = [
+    ['Facebook', isConfigured, syncFacebook],
+    ['Instagram', isInstagramConfigured, syncInstagram],
+  ];
+  // Beide Kanäle unabhängig: scheitert einer, bleibt dessen alter Stand
+  // im Speicher und wird weiter angezeigt.
+  for (const [name, configured, sync] of channels) {
+    if (!configured()) {
+      console.log(`${name}-Abruf übersprungen: Zugangsdaten fehlen.`);
+      continue;
+    }
+    try {
+      const feed = await sync();
+      console.log(`${name}-Abruf ok: ${feed.posts.length} Beiträge.`);
+    } catch (err) {
+      console.error(`${name}-Abruf fehlgeschlagen:`, err.message);
+    }
   }
 };
 
