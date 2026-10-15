@@ -1,6 +1,10 @@
   /* =========================================================
      GEMEINSAME BASIS (Startseite + Musiktage-Seite)
      ========================================================= */
+  /* Das hidden-Attribut soll immer ausblenden, auch wenn eine Klasse
+     display setzt. Modals ausgenommen: Sie blenden per opacity weich ein. */
+  [hidden]:not(.modal-overlay){display:none !important;}
+
   @font-face {
     font-family: 'Vereinsserif';
     src: url("../fonts/vereinsserif.woff") format("woff");
