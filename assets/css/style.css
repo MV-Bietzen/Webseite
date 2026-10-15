@@ -839,13 +839,20 @@
   .chronik-item p a:hover{text-decoration-color:var(--burgundy);}
   .chronik-item em{font-style:italic;}
 
+  /* Desktop: Jahreszahlen links, daneben die Linie mit den Punkten genau
+     darauf, rechts der Text. */
   @media (min-width: 760px){
-    .chronik{padding-left:6.5rem;}
-    .chronik-item{padding-left:2rem;}
-    .chronik-item .jahr{
-      position:absolute; left:-8.5rem; top:0.1rem; width:5.2rem; text-align:center; margin:0;
+    .chronik{padding-left:0; border-left:0;}
+    .chronik::before{
+      content:''; position:absolute; left:6.6rem; top:0.4rem; bottom:0; width:2px;
+      background:rgba(107,18,32,0.18);
     }
-    .chronik-item::before{left:-2.15rem;}
+    .chronik-item{padding-left:8.4rem;}
+    .chronik-item .jahr{
+      position:absolute; left:0; top:0.1rem; width:5.2rem; text-align:center; margin:0;
+    }
+    /* Punkt 11px + 2x2px Rand = 15px; Mitte auf die 2px breite Linie */
+    .chronik-item::before{left:calc(6.6rem - 6.5px); top:0.45rem;}
   }
 
   /* ---------- CHRONIK: Swipe-Modus (mobil) ---------- */
