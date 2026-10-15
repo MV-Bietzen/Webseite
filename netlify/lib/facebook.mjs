@@ -20,6 +20,7 @@ export const IG_FEED_KEY = 'instagram';
 export const IG_IMAGE_PREFIX = 'ig/';
 const IG_TOKEN_KEY = 'ig-token';
 const IG_REFRESH_MS = 7 * 24 * 60 * 60 * 1000;
+const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
 export function facebookStore() {
   return getStore({ name: 'facebook', consistency: 'strong' });
@@ -205,6 +206,34 @@ export async function syncInstagram(store = facebookStore()) {
     });
   }
 
+  // Die API liefert nur Stories, die gerade online sind (24 Stunden).
+  // Scheitert der Abruf, bleiben die Beiträge davon unberührt.
+  const stories = [];
+  try {
+    const { data: storyData = [] } = await request(`${igId}/stories`, {
+      fields: 'id,media_type,media_url,thumbnail_url,permalink,timestamp',
+    });
+    for (const item of storyData) {
+      const id = safeId(item.id);
+      const date = normalizeDate(item.timestamp);
+      const src = item.media_type === 'VIDEO' ? item.thumbnail_url : item.media_url;
+      if (!id || !date || !src) continue;
+      const ok = await storeImage(store, IG_IMAGE_PREFIX + id, src).catch(() => false);
+      if (!ok) continue;
+      stories.push({
+        id,
+        date,
+        expires: new Date(new Date(date).getTime() + STORY_LIFETIME_MS).toISOString(),
+        link: isHttpsOn(item.permalink, 'instagram.com') ? item.permalink : null,
+        image: `/api/instagram-bild/${id}`,
+        video: item.media_type === 'VIDEO',
+      });
+    }
+    stories.sort((a, b) => a.date.localeCompare(b.date));
+  } catch (err) {
+    console.warn('Instagram-Stories nicht abgerufen:', err.message);
+  }
+
   const username = /^[A-Za-z0-9._]+$/.test(profile.username || '') ? profile.username : null;
   const feed = {
     updated: new Date().toISOString(),
@@ -213,9 +242,10 @@ export async function syncInstagram(store = facebookStore()) {
       link: username ? `https://www.instagram.com/${username}/` : null,
     },
     posts,
+    stories,
   };
   await store.setJSON(IG_FEED_KEY, feed);
-  await pruneImages(store, IG_IMAGE_PREFIX, posts.map((p) => p.id));
+  await pruneImages(store, IG_IMAGE_PREFIX, [...posts, ...stories].map((p) => p.id));
   return feed;
 }
 

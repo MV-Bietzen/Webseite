@@ -56,5 +56,7 @@ Meta. Benötigte Umgebungsvariablen in Netlify (*Site configuration → Environm
 - `IG_USER_ID` — optional für den Weg über die Facebook-Seite
 - `FB_GRAPH_VERSION` — optional, Standard `v24.0`
 
-Instagram muss in beiden Fällen ein Business- oder Creator-Konto sein. Läuft der Token ab, bleibt der letzte Stand sichtbar. Den Grund für
+Instagram muss in beiden Fällen ein Business- oder Creator-Konto sein. Aktuelle Instagram-Stories
+(nur die gerade online sind) erscheinen als Story-Kreis über dem Instagram-Raster und
+verschwinden auf der Seite automatisch nach 24 Stunden. Läuft der Token ab, bleibt der letzte Stand sichtbar. Den Grund für
 fehlende Beiträge zeigen `/api/facebook` bzw. `/api/instagram` im Feld `reason`.

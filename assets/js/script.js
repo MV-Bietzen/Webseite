@@ -1061,14 +1061,132 @@
         igList.appendChild(tile);
       });
 
-      if (!igList.children.length) return;
+      const storyCount = setupStories(feed);
+      if (!igList.children.length && !storyCount) return;
       if (feed.profile && isLinkTo(feed.profile.link, 'instagram.com')) showMore('igMore', feed.profile.link);
       igBlock.hidden = false;
+    }
+
+    // Story-Kreis + Vollbild-Viewer. Nur Stories, die noch nicht abgelaufen
+    // sind (der Abruf läuft stündlich, die Story verschwindet aber pünktlich).
+    function setupStories(feed) {
+      const btn = document.getElementById('igStoryBtn');
+      const overlay = document.getElementById('modal-story');
+      const track = document.getElementById('storyTrack');
+      const bars = document.getElementById('storyBars');
+      if (!btn || !overlay || !track || !bars || !Array.isArray(feed.stories)) return 0;
+
+      const now = Date.now();
+      const stories = feed.stories.filter((story) => {
+        const expires = validDate(story.expires);
+        return expires && expires.getTime() > now &&
+          typeof story.image === 'string' && story.image.startsWith('/api/instagram-bild/');
+      });
+      if (!stories.length) return 0;
+
+      const relTime = (date) => {
+        const minutes = Math.max(1, Math.round((Date.now() - date.getTime()) / 60000));
+        return minutes < 60 ? `vor ${minutes} Min.` : `vor ${Math.round(minutes / 60)} Std.`;
+      };
+
+      stories.forEach((story, i) => {
+        const hasLink = isLinkTo(story.link, 'instagram.com');
+        const slide = document.createElement('div');
+        slide.className = 'flyer-slide story-slide';
+
+        const img = document.createElement('img');
+        img.src = story.image;
+        img.alt = `Story ${i + 1} von ${stories.length}`;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        slide.appendChild(img);
+
+        if (story.video && hasLink) {
+          const play = document.createElement('a');
+          play.className = 'story-play';
+          play.href = story.link;
+          play.target = '_blank';
+          play.rel = 'noopener';
+          play.setAttribute('aria-label', 'Video auf Instagram abspielen');
+          play.innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>';
+          slide.appendChild(play);
+        }
+
+        const meta = document.createElement('div');
+        meta.className = 'story-meta';
+        const time = document.createElement('span');
+        time.dataset.date = story.date;
+        meta.appendChild(time);
+        if (hasLink) {
+          const a = document.createElement('a');
+          a.href = story.link;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.textContent = 'Auf Instagram →';
+          meta.appendChild(a);
+        }
+        slide.appendChild(meta);
+
+        track.appendChild(slide);
+        bars.appendChild(document.createElement('span'));
+      });
+
+      const slides = track.children;
+      const barEls = bars.children;
+      const prev = overlay.querySelector('.flyer-prev');
+      const next = overlay.querySelector('.flyer-next');
+      let current = 0;
+
+      function update() {
+        Array.from(barEls).forEach((bar, i) => bar.classList.toggle('done', i <= current));
+        prev.style.visibility = current === 0 ? 'hidden' : '';
+        next.style.visibility = current === slides.length - 1 ? 'hidden' : '';
+      }
+      function goTo(i, behavior) {
+        current = Math.max(0, Math.min(slides.length - 1, i));
+        slides[current].scrollIntoView({ behavior: behavior || 'smooth', inline: 'start', block: 'nearest' });
+        update();
+      }
+
+      prev.addEventListener('click', () => goTo(current - 1));
+      next.addEventListener('click', () => goTo(current + 1));
+      // Wie bei Instagram: Tippen links = zurück, rechts = weiter, nach der
+      // letzten Story schließt sich die Ansicht.
+      track.addEventListener('click', (e) => {
+        if (e.target.closest('a')) return;
+        const rect = track.getBoundingClientRect();
+        if (e.clientX - rect.left < rect.width / 3) goTo(current - 1);
+        else if (current < slides.length - 1) goTo(current + 1);
+        else closeModal('story');
+      });
+      let scrollTimeout;
+      track.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          current = Math.round(track.scrollLeft / track.clientWidth);
+          update();
+        }, 100);
+      }, { passive: true });
+      overlay.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') goTo(current + 1);
+        if (e.key === 'ArrowLeft') goTo(current - 1);
+      });
+
+      btn.hidden = false;
+      btn.addEventListener('click', () => {
+        track.querySelectorAll('[data-date]').forEach((el) => {
+          const date = validDate(el.dataset.date);
+          el.textContent = date ? relTime(date) : '';
+        });
+        openModal('story');
+        requestAnimationFrame(() => goTo(0, 'auto'));
+      });
+      return stories.length;
     }
 
     Promise.all([loadFeed('/api/facebook'), loadFeed('/api/instagram')]).then(([fb, ig]) => {
       if (fb) renderFacebook(fb);
       if (ig) renderInstagram(ig);
-      if (fbList.children.length || igList.children.length) section.hidden = false;
+      if (fbList.children.length || !igBlock.hidden) section.hidden = false;
     });
   })();

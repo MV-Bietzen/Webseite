@@ -251,7 +251,12 @@
       <p class="fb-more" id="fbMore" hidden><a class="btn-link" href="#" target="_blank" rel="noopener">Alle Beiträge auf Facebook →</a></p>
 
       <div class="ig-block" id="igBlock" hidden>
-        <h3 class="ig-title">Auf Instagram</h3>
+        <div class="ig-head">
+          <button type="button" class="ig-story-ring" id="igStoryBtn" hidden aria-label="Aktuelle Instagram-Stories ansehen">
+            <span class="badge-img"></span>
+          </button>
+          <h3 class="ig-title">Auf Instagram</h3>
+        </div>
         <div class="ig-grid" id="igPosts"></div>
         <p class="fb-more" id="igMore" hidden><a class="btn-link" href="#" target="_blank" rel="noopener">Folge uns auf Instagram →</a></p>
       </div>
@@ -931,6 +936,23 @@
   </div>
 </div>
 
+<!-- Instagram-Stories (Vollbild) -->
+<div class="modal-overlay flyer-overlay story-overlay" id="modal-story" role="dialog" aria-modal="true" aria-label="Instagram-Stories" hidden>
+  <button class="modal-close flyer-close" data-modal-close aria-label="Schließen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="story-bars" id="storyBars" aria-hidden="true"></div>
+  <div class="flyer-lightbox-box story-box">
+    <button class="flyer-nav flyer-prev" type="button" aria-label="Vorherige Story">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="flyer-track" id="storyTrack"></div>
+    <button class="flyer-nav flyer-next" type="button" aria-label="Nächste Story">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
 <!-- Datenschutz Modal -->
 <div class="modal-overlay" id="modal-datenschutz" role="dialog" aria-modal="true" aria-labelledby="datenschutz-title" hidden>
   <div class="modal-box">
@@ -971,7 +993,7 @@
       <p>Zur Anzeige unserer aktuellen Termine ruft die Website automatisiert Kalenderdaten unseres Vereinskalenders bei Konzertmeister ab. Der Abruf erfolgt serverseitig über unseren Hosting-Anbieter, sodass hierbei keine Daten von Ihnen an Konzertmeister übermittelt werden. Es werden ausschließlich die öffentlich einsehbaren Termindaten des Vereins abgerufen; personenbezogene Daten von Ihnen als Websitebesucher werden dabei nicht gespeichert. Rechtsgrundlage ist unser berechtigtes Interesse an einer aktuellen Terminanzeige (Art. 6 Abs. 1 S. 1 lit. f DSGVO).</p>
 
       <h3>8. Beiträge von unserer Facebook-Seite und unserem Instagram-Profil</h3>
-      <p>Im Bereich „Aktuelles" zeigen wir die neuesten Beiträge unserer Facebook-Seite und unseres Instagram-Profils. Texte und Bilder werden dafür regelmäßig serverseitig über unseren Hosting-Anbieter Netlify bei Facebook bzw. Instagram (beide Meta Platforms Ireland Ltd.) abgerufen, gespeichert und von unserem eigenen Server ausgeliefert. Beim Besuch dieser Website wird dadurch <strong>keine</strong> Verbindung zu Facebook oder Instagram hergestellt, und es werden keine Daten von Ihnen an Meta übermittelt. Erst wenn Sie einen Beitrag oder Link zu Facebook bzw. Instagram anklicken, gelangen Sie zum jeweiligen Dienst; dort gilt die <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener">Datenschutzrichtlinie von Meta</a>. Rechtsgrundlage für die Anzeige ist unser berechtigtes Interesse an aktuellen Vereinsinformationen (Art. 6 Abs. 1 S. 1 lit. f DSGVO).</p>
+      <p>Im Bereich „Aktuelles" zeigen wir die neuesten Beiträge unserer Facebook-Seite sowie Beiträge und aktuelle Stories unseres Instagram-Profils. Texte und Bilder werden dafür regelmäßig serverseitig über unseren Hosting-Anbieter Netlify bei Facebook bzw. Instagram (beide Meta Platforms Ireland Ltd.) abgerufen, gespeichert und von unserem eigenen Server ausgeliefert. Beim Besuch dieser Website wird dadurch <strong>keine</strong> Verbindung zu Facebook oder Instagram hergestellt, und es werden keine Daten von Ihnen an Meta übermittelt. Erst wenn Sie einen Beitrag oder Link zu Facebook bzw. Instagram anklicken, gelangen Sie zum jeweiligen Dienst; dort gilt die <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener">Datenschutzrichtlinie von Meta</a>. Rechtsgrundlage für die Anzeige ist unser berechtigtes Interesse an aktuellen Vereinsinformationen (Art. 6 Abs. 1 S. 1 lit. f DSGVO).</p>
 
       <h3>9. Kontaktformular</h3>
       <p>Das Kontaktformular auf dieser Seite überträgt keine Daten an einen Server. Beim Klick auf „Nachricht senden" wird lediglich Ihr lokales E-Mail-Programm mit einer vorausgefüllten Nachricht an <a href="mailto:info@mv-bietzen.de">info@mv-bietzen.de</a> geöffnet. Die eingegebenen Daten verbleiben bis dahin ausschließlich in Ihrem Browser; der eigentliche Versand erfolgt erst, wenn Sie die E-Mail in Ihrem E-Mail-Programm selbst abschicken.</p>

@@ -679,10 +679,48 @@
 
   .ig-block{margin-top:3rem;}
   .fb-grid:empty ~ .ig-block{margin-top:0;}
+  .ig-head{display:flex; align-items:center; gap:0.9rem; margin-bottom:1rem;}
   .ig-title{
     font-family:'Vereinsserif', Georgia, serif; font-size:1.35rem; font-weight:600;
-    color:var(--burgundy); margin-bottom:1rem;
+    color:var(--burgundy);
   }
+  .ig-story-ring{
+    width:64px; height:64px; padding:3px; border:none; border-radius:50%; cursor:pointer; flex-shrink:0;
+    background:conic-gradient(from 210deg, var(--gold-light), var(--burgundy), var(--gold), var(--gold-light));
+    transition:transform 0.2s ease;
+  }
+  .ig-story-ring:hover{transform:scale(1.05);}
+  .ig-story-ring:focus-visible{outline:2px solid var(--burgundy); outline-offset:3px;}
+  .ig-story-ring.seen{background:rgba(107,18,32,0.22);}
+  .ig-story-ring .badge-img{
+    width:100%; height:100%; border-radius:50%; border:3px solid var(--cream);
+    background-color:var(--cream); background-size:76%;
+  }
+
+  /* Story-Vollbild (nutzt die Flyer-Lightbox als Grundlage) */
+  .story-overlay .story-box{max-width:min(400px, 92vw, calc(82vh * 9 / 16));}
+  .story-box .flyer-track{background:#000;}
+  .story-slide{position:relative; aspect-ratio:9/16; max-height:82vh;}
+  .story-box .story-slide img{width:100%; height:100%; max-height:none; object-fit:cover;}
+  .story-meta{
+    position:absolute; left:0; right:0; bottom:0; padding:2.4rem 1rem 1rem;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:0.8rem;
+    background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff; font-size:0.82rem;
+  }
+  .story-meta a{
+    color:#fff; text-decoration:none; font-family:'Vereinscond', 'Arial Narrow', sans-serif;
+    text-transform:uppercase; letter-spacing:0.07em; font-size:0.78rem;
+    border-bottom:2px solid var(--gold); padding-bottom:0.15rem;
+  }
+  .story-play{
+    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+    width:64px; height:64px; border-radius:50%; background:rgba(0,0,0,0.5); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .story-play svg{width:26px; height:26px; margin-left:4px;}
+  .story-bars{display:flex; gap:4px; width:100%; max-width:min(400px, 92vw, calc(82vh * 9 / 16));}
+  .story-bars span{flex:1; height:3px; border-radius:2px; background:rgba(247,243,234,0.35); transition:background 0.2s ease;}
+  .story-bars span.done{background:var(--gold-light);}
   .ig-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:0.6rem;}
   @media (max-width:680px){ .ig-grid{grid-template-columns:repeat(2, 1fr);} }
   .ig-tile{
