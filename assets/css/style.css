@@ -182,6 +182,12 @@
     display:inline-flex; align-items:center; gap:0.35em; line-height:1.25;
   }
   .nav-group-toggle:hover, .nav-group.open .nav-group-toggle{opacity:1;}
+  .nav-group-toggle{position:relative;}
+  .nav-group-toggle::after{
+    content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px; background:var(--gold);
+    transform:scaleX(0); transform-origin:left; transition:transform 0.25s ease;
+  }
+  .nav-group-toggle:hover::after, .nav-group.open .nav-group-toggle::after{transform:scaleX(1);}
   .nav-group-toggle svg{width:11px; height:11px; transition:transform 0.2s ease;}
   .nav-group.open .nav-group-toggle svg{transform:rotate(180deg);}
   .nav-group-toggle:focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
@@ -198,6 +204,8 @@
     .nav-sub::before{content:''; position:absolute; left:0; right:0; top:-0.7rem; height:0.7rem;}
     .nav-group:hover .nav-sub, .nav-group.open .nav-sub{opacity:1; visibility:visible; transform:none;}
     .nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);}
+    .nav-group:hover .nav-group-toggle{opacity:1;}
+    .nav-group:hover .nav-group-toggle::after{transform:scaleX(1);}
     nav.primary .nav-sub a{padding:0.6rem 1.1rem; opacity:0.9; white-space:nowrap;}
     nav.primary .nav-sub a::after{display:none;}
     nav.primary .nav-sub a:hover, nav.primary .nav-sub a:focus-visible{opacity:1; background:rgba(247,243,234,0.08);}

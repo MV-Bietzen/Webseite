@@ -30,6 +30,10 @@ assets/
 - Dateien in `assets/` werden serverseitig ein Jahr lang gecacht (siehe `netlify.toml`).
   Bei Bildaustausch daher **neuen Dateinamen** verwenden und Verweis in der HTML anpassen,
   sonst zeigen Browser monatelang die alte Version.
+- Das gilt auch für `assets/css/style.css` und `assets/js/script.js`: Sie sind in
+  `index.html` und `musiktage.html` mit `?v=…` eingebunden. Nach jeder Änderung an
+  CSS oder JS diese Versionsangabe in beiden Dateien erhöhen, sonst sehen
+  wiederkehrende Besucher die Änderung nicht.
 - Formular „Mitglied werden" nutzt Netlify Forms (kostenlos) + reCAPTCHA.
   Muss einmalig im Netlify-Dashboard unter *Forms* aktiviert werden.
 
