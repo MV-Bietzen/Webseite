@@ -726,26 +726,49 @@
   }
   .fb-post .btn-link{margin-top:auto; align-self:flex-start;}
   .fb-more{margin-top:1.8rem; text-align:center;}
-  .fb-grid:empty{display:none;}
 
-  .ig-block{margin-top:3rem;}
-  .fb-grid:empty ~ .ig-block{margin-top:0;}
-  .ig-head{display:flex; align-items:center; gap:0.9rem; margin-bottom:1rem;}
-  .ig-title{
+  /* Kopfzeile je Kanal (Facebook / Instagram) */
+  .social-block{margin-top:3.5rem;}
+  .section-head + .social-block, .social-block[hidden] + .social-block{margin-top:0;}
+  .social-head{
+    display:flex; align-items:center; gap:0.9rem;
+    padding-bottom:1rem; margin-bottom:1.5rem; border-bottom:1px solid rgba(107,18,32,0.14);
+  }
+  .social-icon{
+    width:44px; height:44px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--burgundy); color:var(--cream);
+  }
+  .social-icon svg{width:21px; height:21px;}
+  .social-head-text{display:flex; flex-direction:column; gap:0.15rem; min-width:0;}
+  .social-title{
     font-family:'Vereinsserif', Georgia, serif; font-size:1.35rem; font-weight:600;
-    color:var(--burgundy);
+    color:var(--burgundy); line-height:1.2;
+  }
+  .social-handle{
+    font-size:0.85rem; color:var(--ink-soft); text-decoration:none;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .social-handle:hover{color:var(--burgundy); text-decoration:underline; text-underline-offset:0.15em;}
+
+  .ig-story{
+    margin-left:auto; flex-shrink:0; background:none; border:none; padding:0; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:0.25rem;
   }
   .ig-story-ring{
-    width:64px; height:64px; padding:3px; border:none; border-radius:50%; cursor:pointer; flex-shrink:0;
+    display:block; width:56px; height:56px; padding:3px; border-radius:50%;
     background:conic-gradient(from 210deg, var(--gold-light), var(--burgundy), var(--gold), var(--gold-light));
     transition:transform 0.2s ease;
   }
-  .ig-story-ring:hover{transform:scale(1.05);}
-  .ig-story-ring:focus-visible{outline:2px solid var(--burgundy); outline-offset:3px;}
-  .ig-story-ring.seen{background:rgba(107,18,32,0.22);}
+  .ig-story:hover .ig-story-ring{transform:scale(1.05);}
+  .ig-story:focus-visible{outline:2px solid var(--burgundy); outline-offset:3px; border-radius:var(--radius);}
   .ig-story-ring .badge-img{
     width:100%; height:100%; border-radius:50%; border:3px solid var(--cream);
     background-color:var(--cream); background-size:76%;
+  }
+  .ig-story-label{
+    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase;
+    letter-spacing:0.08em; font-size:0.68rem; color:var(--burgundy);
   }
 
   /* Story-Vollbild (nutzt die Flyer-Lightbox als Grundlage) */
