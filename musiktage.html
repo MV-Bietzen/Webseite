@@ -190,7 +190,7 @@
 }
 </script>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=20261015f">
 </head>
 <body>
 
@@ -206,12 +206,24 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
     <nav class="primary" id="primaryNav">
-      <a href="index.html#verein">Der Verein</a>
+      <div class="nav-group">
+        <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="navVerein">Verein<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
+        <div class="nav-sub" id="navVerein">
+          <a href="index.html#verein">Über uns</a>
+          <a href="index.html#vorstand">Vorstand</a>
+          <a href="index.html#chronik">Chronik</a>
+        </div>
+      </div>
       <a href="index.html#termine">Termine</a>
-      <a href="index.html#nachwuchs">Nachwuchs</a>
-      <a href="index.html#hauptorchester">Hauptorchester</a>
-      <a href="index.html#vorstand">Vorstand</a>
-      <a href="index.html#chronik">Chronik</a>
+      <a href="index.html#aktuelles" id="navAktuelles">Aktuelles</a>
+      <div class="nav-group">
+        <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="navOrchester">Orchester<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
+        <div class="nav-sub" id="navOrchester">
+          <a href="index.html#hauptorchester">Hauptorchester</a>
+          <a href="index.html#jugendorchester">Jugendorchester</a>
+          <a href="index.html#nachwuchs">Nachwuchs</a>
+        </div>
+      </div>
       <a href="index.html#kontakt">Kontakt</a>
       <a href="index.html#mitglied" class="nav-cta">Mitglied werden</a>
     </nav>
@@ -436,7 +448,7 @@
   </div>
 </div>
 
-<script src="assets/js/script.js"></script>
+<script src="assets/js/script.js?v=20261015f"></script>
 
 </body>
 </html>

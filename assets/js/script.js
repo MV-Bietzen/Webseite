@@ -21,6 +21,31 @@
     });
   });
 
+  // Untermenüs (Verein, Orchester): am Desktop zusätzlich per Hover,
+  // per Klick/Tippen für Touch und Tastatur.
+  const navGroups = primaryNav.querySelectorAll('.nav-group');
+  const closeNavGroups = (except) => navGroups.forEach(group => {
+    if (group === except) return;
+    group.classList.remove('open');
+    group.querySelector('.nav-group-toggle').setAttribute('aria-expanded', 'false');
+  });
+  navGroups.forEach(group => {
+    const toggle = group.querySelector('.nav-group-toggle');
+    toggle.addEventListener('click', () => {
+      const open = !group.classList.contains('open');
+      closeNavGroups(group);
+      group.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    group.querySelectorAll('a').forEach(link => link.addEventListener('click', () => closeNavGroups()));
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-group')) closeNavGroups();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeNavGroups();
+  });
+
   // Scroll reveal
   const revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
@@ -953,9 +978,17 @@
   (function socialFeeds() {
     const section = document.getElementById('aktuelles');
     const fbList = document.getElementById('fbPosts');
+    const fbBlock = document.getElementById('fbBlock');
     const igBlock = document.getElementById('igBlock');
     const igList = document.getElementById('igPosts');
-    if (!section || !fbList || !igBlock || !igList) return;
+    if (!section || !fbList || !fbBlock || !igBlock || !igList) return;
+    const showHandle = (id, text, url) => {
+      const handle = document.getElementById(id);
+      if (!handle || !text) return;
+      handle.textContent = text;
+      handle.href = url;
+      handle.hidden = false;
+    };
     const isLinkTo = (url, domain) => typeof url === 'string' &&
       new RegExp('^https://([a-z0-9-]+\\.)*' + domain.replace('.', '\\.') + '/', 'i').test(url);
     const dateFmt = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -1019,7 +1052,12 @@
         fbList.appendChild(article);
       });
 
-      if (feed.page && isLinkTo(feed.page.link, 'facebook.com')) showMore('fbMore', feed.page.link);
+      if (!fbList.children.length) return;
+      if (feed.page && isLinkTo(feed.page.link, 'facebook.com')) {
+        showMore('fbMore', feed.page.link);
+        showHandle('fbHandle', feed.page.name, feed.page.link);
+      }
+      fbBlock.hidden = false;
     }
 
     function renderInstagram(feed) {
@@ -1063,7 +1101,10 @@
 
       const storyCount = setupStories(feed);
       if (!igList.children.length && !storyCount) return;
-      if (feed.profile && isLinkTo(feed.profile.link, 'instagram.com')) showMore('igMore', feed.profile.link);
+      if (feed.profile && isLinkTo(feed.profile.link, 'instagram.com')) {
+        showMore('igMore', feed.profile.link);
+        if (feed.profile.username) showHandle('igHandle', '@' + feed.profile.username, feed.profile.link);
+      }
       igBlock.hidden = false;
     }
 
@@ -1187,6 +1228,10 @@
     Promise.all([loadFeed('/api/facebook'), loadFeed('/api/instagram')]).then(([fb, ig]) => {
       if (fb) renderFacebook(fb);
       if (ig) renderInstagram(ig);
-      if (fbList.children.length || !igBlock.hidden) section.hidden = false;
+      if (!fbBlock.hidden || !igBlock.hidden) {
+        section.hidden = false;
+        const navLink = document.getElementById('navAktuelles');
+        if (navLink) navLink.hidden = false;
+      }
     });
   })();
