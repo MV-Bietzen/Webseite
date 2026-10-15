@@ -21,6 +21,31 @@
     });
   });
 
+  // Untermenüs (Verein, Orchester): am Desktop zusätzlich per Hover,
+  // per Klick/Tippen für Touch und Tastatur.
+  const navGroups = primaryNav.querySelectorAll('.nav-group');
+  const closeNavGroups = (except) => navGroups.forEach(group => {
+    if (group === except) return;
+    group.classList.remove('open');
+    group.querySelector('.nav-group-toggle').setAttribute('aria-expanded', 'false');
+  });
+  navGroups.forEach(group => {
+    const toggle = group.querySelector('.nav-group-toggle');
+    toggle.addEventListener('click', () => {
+      const open = !group.classList.contains('open');
+      closeNavGroups(group);
+      group.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    group.querySelectorAll('a').forEach(link => link.addEventListener('click', () => closeNavGroups()));
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-group')) closeNavGroups();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeNavGroups();
+  });
+
   // Scroll reveal
   const revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
@@ -1187,6 +1212,10 @@
     Promise.all([loadFeed('/api/facebook'), loadFeed('/api/instagram')]).then(([fb, ig]) => {
       if (fb) renderFacebook(fb);
       if (ig) renderInstagram(ig);
-      if (fbList.children.length || !igBlock.hidden) section.hidden = false;
+      if (fbList.children.length || !igBlock.hidden) {
+        section.hidden = false;
+        const navLink = document.getElementById('navAktuelles');
+        if (navLink) navLink.hidden = false;
+      }
     });
   })();

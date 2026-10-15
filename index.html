@@ -72,11 +72,23 @@
     </button>
 
     <nav class="primary" id="primaryNav">
-      <a href="#verein">Der Verein</a>
+      <div class="nav-group">
+        <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="navVerein">Verein<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
+        <div class="nav-sub" id="navVerein">
+          <a href="#verein">Über uns</a>
+          <a href="#vorstand">Vorstand</a>
+        </div>
+      </div>
       <a href="#termine">Termine</a>
-      <a href="#nachwuchs">Nachwuchs</a>
-      <a href="#hauptorchester">Hauptorchester</a>
-      <a href="#vorstand">Vorstand</a>
+      <a href="#aktuelles" id="navAktuelles" hidden>Aktuelles</a>
+      <div class="nav-group">
+        <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="navOrchester">Orchester<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
+        <div class="nav-sub" id="navOrchester">
+          <a href="#hauptorchester">Hauptorchester</a>
+          <a href="#jugendorchester">Jugendorchester</a>
+          <a href="#nachwuchs">Nachwuchs</a>
+        </div>
+      </div>
       <a href="#chronik">Chronik</a>
       <a href="#kontakt">Kontakt</a>
       <a href="#mitglied" class="nav-cta">Mitglied werden</a>
