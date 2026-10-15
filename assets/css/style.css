@@ -150,7 +150,6 @@
   @media (min-width: 861px) and (max-width: 1120px){
     nav.primary{gap:1.1rem;}
     nav.primary a{font-size:0.78rem; letter-spacing:0.05em;}
-    .nav-cta{padding:0.6rem 1.7rem;}
     .brand-text strong{font-size:0.92rem;}
   }
   nav.primary a{
@@ -161,10 +160,16 @@
     content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px; background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform 0.25s ease;
   }
   nav.primary a:hover::after{transform:scaleX(1);}
-  .nav-cta{
-    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; font-size:0.78rem; letter-spacing:0.08em; color:var(--ink); background:var(--gold); padding:0.6rem 2.6rem; text-decoration:none; border-radius:var(--radius); transition:background 0.2s ease; display:inline-block; text-align:center;
+  /* Mit "nav.primary a." davor, sonst gewinnen die allgemeinen Link-Regeln
+     oben (helle Schrift, kein Innenabstand, Transparenz, Unterstrich). */
+  nav.primary a.nav-cta{
+    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; font-size:0.78rem; letter-spacing:0.08em;
+    color:var(--ink); background:var(--gold); padding:0.65rem 1.4rem; text-decoration:none; border-radius:var(--radius);
+    transition:background 0.2s ease; display:inline-block; text-align:center; white-space:nowrap; line-height:1.2; opacity:1;
   }
-  .nav-cta:hover{background:var(--gold-light);}
+  nav.primary a.nav-cta::after{display:none;}
+  nav.primary a.nav-cta:hover{background:var(--gold-light);}
+  nav.primary a.nav-cta:focus-visible{outline:2px solid var(--cream); outline-offset:3px;}
 
   .menu-toggle{display:none; background:none; border:none; color:var(--cream); cursor:pointer; padding:0.4rem;}
   .menu-toggle svg{width:26px; height:26px;}
@@ -211,7 +216,7 @@
     nav.primary.open{transform:translateX(0);}
     nav.primary a{font-size:1.1rem;}
     .menu-toggle{display:block; z-index:110;}
-    .nav-cta{margin-top:0.5rem;}
+    nav.primary a.nav-cta{align-self:stretch; margin-top:0.8rem; padding:0.95rem 1.2rem; font-size:0.95rem;}
     .nav-group-toggle{font-size:1.1rem;}
     .nav-sub{
       display:none; flex-direction:column; align-items:flex-start; gap:1rem;
