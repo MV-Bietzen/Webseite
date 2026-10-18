@@ -730,6 +730,17 @@
   }
   .fb-post .btn-link{margin-top:auto; align-self:flex-start;}
   .fb-more{margin-top:1.8rem; text-align:center;}
+  /* Handy: Beiträge als wischbare Galerie statt langer Liste. Die nächste
+     Karte schaut rechts hervor, damit klar ist, dass man wischen kann. */
+  @media (max-width:680px){
+    .fb-grid{
+      display:flex; gap:1rem; overflow-x:auto; scroll-snap-type:x mandatory;
+      overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+      margin:0 -1.5rem; padding:0 1.5rem 0.4rem; scroll-padding-left:1.5rem;
+    }
+    .fb-grid::-webkit-scrollbar{display:none;}
+    .fb-post{flex:0 0 82%; scroll-snap-align:start;}
+  }
 
   /* Kopfzeile je Kanal (Facebook / Instagram) */
   .social-block{margin-top:3.5rem;}
