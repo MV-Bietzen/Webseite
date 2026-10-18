@@ -1056,6 +1056,17 @@
       if (feed.page && isLinkTo(feed.page.link, 'facebook.com')) {
         showMore('fbMore', feed.page.link);
         showHandle('fbHandle', feed.page.name, feed.page.link);
+
+        // Abschluss-Kachel am Ende der Handy-Galerie (am Desktop per CSS aus)
+        const moreCard = document.createElement('a');
+        moreCard.className = 'fb-more-card';
+        moreCard.href = feed.page.link;
+        moreCard.target = '_blank';
+        moreCard.rel = 'noopener';
+        moreCard.innerHTML = '<img src="assets/icon-facebook.png" alt="" width="48" height="48">' +
+          '<span class="fb-more-card-title">Mehr auf Facebook</span>' +
+          '<span class="btn-link">Alle Beiträge →</span>';
+        fbList.appendChild(moreCard);
       }
       fbBlock.hidden = false;
     }

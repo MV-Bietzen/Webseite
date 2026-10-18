@@ -740,7 +740,16 @@
     }
     .fb-grid::-webkit-scrollbar{display:none;}
     .fb-post{flex:0 0 82%; scroll-snap-align:start;}
+    .fb-more-card{
+      flex:0 0 60%; scroll-snap-align:start; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:0.8rem; padding:1.5rem; text-align:center; text-decoration:none;
+      background:#fff; border:1px dashed rgba(107,18,32,0.3); border-radius:var(--radius);
+    }
+    .fb-more-card img{width:48px; height:48px;}
+    .fb-more-card-title{font-family:'Vereinsserif', Georgia, serif; font-size:1.2rem; font-weight:600; color:var(--burgundy);}
+    .fb-more-card .btn-link{margin-top:0;}
   }
+  @media (min-width:681px){ .fb-more-card{display:none;} }
 
   /* Kopfzeile je Kanal (Facebook / Instagram) */
   .social-block{margin-top:3.5rem;}
