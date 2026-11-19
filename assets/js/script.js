@@ -1007,6 +1007,28 @@
       more.hidden = false;
     };
 
+    // Abschluss-Kachel am Ende der Handy-Galerie (am Desktop per CSS aus)
+    function moreCard(link, icon, title) {
+      const card = document.createElement('a');
+      card.className = 'social-more-card';
+      card.href = link;
+      card.target = '_blank';
+      card.rel = 'noopener';
+      const img = document.createElement('img');
+      img.src = icon;
+      img.alt = '';
+      img.width = 48;
+      img.height = 48;
+      const heading = document.createElement('span');
+      heading.className = 'social-more-card-title';
+      heading.textContent = title;
+      const cta = document.createElement('span');
+      cta.className = 'btn-link';
+      cta.textContent = 'Alle Beiträge →';
+      card.append(img, heading, cta);
+      return card;
+    }
+
     function renderFacebook(feed) {
       feed.posts.forEach((post) => {
         const article = document.createElement('article');
@@ -1057,16 +1079,7 @@
         showMore('fbMore', feed.page.link);
         showHandle('fbHandle', feed.page.name, feed.page.link);
 
-        // Abschluss-Kachel am Ende der Handy-Galerie (am Desktop per CSS aus)
-        const moreCard = document.createElement('a');
-        moreCard.className = 'fb-more-card';
-        moreCard.href = feed.page.link;
-        moreCard.target = '_blank';
-        moreCard.rel = 'noopener';
-        moreCard.innerHTML = '<img src="assets/icon-facebook.png" alt="" width="48" height="48">' +
-          '<span class="fb-more-card-title">Mehr auf Facebook</span>' +
-          '<span class="btn-link">Alle Beiträge →</span>';
-        fbList.appendChild(moreCard);
+        fbList.appendChild(moreCard(feed.page.link, 'assets/icon-facebook.png', 'Mehr auf Facebook'));
       }
       fbBlock.hidden = false;
     }
@@ -1114,6 +1127,7 @@
       if (!igList.children.length && !storyCount) return;
       if (feed.profile && isLinkTo(feed.profile.link, 'instagram.com')) {
         showMore('igMore', feed.profile.link);
+        if (igList.children.length) igList.appendChild(moreCard(feed.profile.link, 'assets/icon-instagram.png', 'Mehr auf Instagram'));
         if (feed.profile.username) showHandle('igHandle', '@' + feed.profile.username, feed.profile.link);
       }
       igBlock.hidden = false;
