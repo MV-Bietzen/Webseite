@@ -47,6 +47,9 @@
   .schicht{padding:1rem; font-family:'Vereinsserif', Georgia, serif; font-weight:600; color:var(--burgundy); background:var(--cream-2);}
   .zelle{padding:0.7rem 0.8rem; border-left:1px solid var(--line);}
   .zelle-station{display:none;}
+  .zelle-gemeinsam{grid-column:2 / -1;}
+  .zelle-gemeinsam .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
+  .zelle-gemeinsam .plaetze{display:grid; grid-template-columns:repeat(var(--stations, 3), 1fr); column-gap:1.6rem;}
   .plaetze{list-style:none; display:flex; flex-direction:column; gap:0.4rem;}
   .platz{min-height:2.4rem; display:flex; align-items:center; gap:0.4rem;}
   .name{flex:1; padding:0.45rem 0.7rem; background:var(--cream); border-radius:var(--radius); overflow-wrap:anywhere;}
@@ -95,6 +98,7 @@
     .schicht{padding:0.8rem 1rem;}
     .zelle{border-left:none; border-top:1px solid var(--line); padding:0.8rem 1rem;}
     .eingabe input{flex-basis:100%;}
+    .zelle-gemeinsam .plaetze{display:flex;}
     .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
   }
 
@@ -200,6 +204,12 @@
 
   function seatId(shift, station, index) { return `${shift.id}/${station.id}/${index}`; }
 
+  // Felder einer Schicht: je Station, oder ein gemeinsames Feld (together).
+  function cellsFor(shift, plan) {
+    if (shift.together) return [{ station: { id: 'alle', name: 'Alle Stationen gemeinsam' }, seats: shift.seats || plan.seats, together: true }];
+    return plan.stations.map((station) => ({ station, seats: plan.seats, together: false }));
+  }
+
   function formatDate(iso) {
     const date = new Date(iso + 'T12:00:00');
     return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
@@ -219,6 +229,7 @@
     $('datum').textContent = formatDate(plan.date);
 
     planEl.style.setProperty('--cols', `minmax(9rem, 0.8fr) repeat(${plan.stations.length}, 1fr)`);
+    planEl.style.setProperty('--stations', plan.stations.length);
     planEl.replaceChildren();
 
     const head = el('div', 'zeile kopfzeile');
@@ -233,12 +244,12 @@
       const row = el('section', 'zeile');
       row.setAttribute('aria-label', shift.label);
       row.appendChild(el('div', 'schicht', shift.label));
-      plan.stations.forEach((station) => {
-        const cell = el('div', 'zelle');
+      cellsFor(shift, plan).forEach(({ station, seats, together }) => {
+        const cell = el('div', together ? 'zelle zelle-gemeinsam' : 'zelle');
         cell.appendChild(el('div', 'zelle-station', station.name));
         const list = el('ul', 'plaetze');
         list.setAttribute('aria-label', `${station.name}, ${shift.label}`);
-        for (let i = 0; i < plan.seats; i++) {
+        for (let i = 0; i < seats; i++) {
           const seat = seatId(shift, station, i);
           const name = entries[seat];
           total++;
@@ -384,6 +395,18 @@
     const lines = [[plan.title + ' – ' + formatDate(plan.date)].map(q).join(';'), '',
       ['Uhrzeit', ...plan.stations.map((s) => s.name)].map(q).join(';')];
     plan.shifts.forEach((shift) => {
+      if (shift.together) {
+        // gemeinsame Schicht: Namen der Reihe nach über die Spalten verteilen
+        const cols = plan.stations.length;
+        const all = { id: 'alle' };
+        const seats = shift.seats || plan.seats;
+        for (let row = 0; row * cols < seats; row++) {
+          const names = [];
+          for (let c = 0; c < cols && row * cols + c < seats; c++) names.push(entries[seatId(shift, all, row * cols + c)]);
+          lines.push([row === 0 ? shift.label + ' (alle Stationen)' : '', ...names].map(q).join(';'));
+        }
+        return;
+      }
       for (let i = 0; i < plan.seats; i++) {
         lines.push([i === 0 ? shift.label : '', ...plan.stations.map((s) => entries[seatId(shift, s, i)])].map(q).join(';'));
       }

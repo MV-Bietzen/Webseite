@@ -25,9 +25,13 @@ export const PLAN = {
   shifts: [
     { id: 'frueh', label: '11:00 – 14:00 Uhr' },
     { id: 'spaet', label: '14:00 – 18:00 Uhr' },
-    { id: 'abbau', label: 'ab 18:00 Uhr · Abbau' },
+    // gemeinsam: keine Aufteilung nach Stationen, eigene Platzzahl
+    { id: 'abbau', label: 'ab 18:00 Uhr · Abbau', together: true, seats: 6 },
   ],
 };
+
+// Station für Schichten ohne Aufteilung (together: true).
+export const ALL_STATIONS = 'alle';
 
 // Eintragen bis zum Ende des Veranstaltungstags, Löschen aller Namen
 // 30 Tage danach.
@@ -49,13 +53,18 @@ export const isConfigured = () => Boolean(process.env.DIENSTPLAN_KEY);
 export const hasKey = (req) => sameSecret(req.headers.get('x-dienstplan-key'), process.env.DIENSTPLAN_KEY);
 export const isAdmin = (req) => sameSecret(req.headers.get('x-dienstplan-admin'), process.env.DIENSTPLAN_ADMIN_CODE);
 
-// Platz-Kennung "schicht/station/platz", z.B. "frueh/burger/0".
+// Platz-Kennung "schicht/station/platz", z.B. "frueh/burger/0" oder "abbau/alle/5".
 export function seatKey(seat) {
   const [shift, station, index, ...rest] = String(seat || '').split('/');
   if (rest.length) return null;
-  if (!PLAN.shifts.some((s) => s.id === shift)) return null;
-  if (!PLAN.stations.some((s) => s.id === station)) return null;
-  if (!/^\d$/.test(index || '') || Number(index) >= PLAN.seats) return null;
+  const shiftDef = PLAN.shifts.find((s) => s.id === shift);
+  if (!shiftDef) return null;
+  const validStation = shiftDef.together
+    ? station === ALL_STATIONS
+    : PLAN.stations.some((s) => s.id === station);
+  if (!validStation) return null;
+  const seats = shiftDef.seats || PLAN.seats;
+  if (!/^\d{1,2}$/.test(index || '') || Number(index) >= seats) return null;
   return `${PLAN.id}/${shift}/${station}/${index}`;
 }
 

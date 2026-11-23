@@ -85,6 +85,7 @@ Umgebungsvariablen in Netlify (beide als *Secret*, danach neu deployen):
 - `DIENSTPLAN_ADMIN_CODE` — Verwaltungs-Code für Ändern/Löschen
 
 Neue Veranstaltung: in `netlify/lib/dienstplan.mjs` das Objekt `PLAN` anpassen
-(**neue `id`**, Titel, Datum, Stationen, Schichten, Plätze je Feld). Einträge alter
+(**neue `id`**, Titel, Datum, Stationen, Schichten, Plätze je Feld). Eine Schicht mit
+`together: true, seats: 6` hat keine Aufteilung nach Stationen (z. B. Abbau). Einträge alter
 Veranstaltungen werden dann automatisch gelöscht. Für einen neuen Link einfach
 `DIENSTPLAN_KEY` ändern.
