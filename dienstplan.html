@@ -36,7 +36,16 @@
   .hinweis{max-width:46rem; color:var(--ink-soft);}
   .status{margin:1.2rem 0; padding:0.8rem 1rem; border-left:3px solid var(--gold); background:#fff; border-radius:var(--radius);}
   .status.fehler{border-left-color:var(--burgundy); color:var(--burgundy);}
-  .zaehler{margin:1.4rem 0 0.8rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.85rem; color:var(--ink-soft);}
+  .fortschritt{margin:1.4rem 0 1rem;}
+  .fortschritt-text{
+    display:flex; justify-content:space-between; gap:1rem; margin-bottom:0.45rem;
+    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.85rem; color:var(--ink-soft);
+  }
+  .fortschritt-text strong{font-weight:400; color:var(--burgundy);}
+  .balken{height:10px; background:var(--cream-2); border:1px solid var(--line); border-radius:999px; overflow:hidden;}
+  .balken span{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius:999px; transition:width 0.6s ease;}
+  .fortschritt.voll .balken span{background:linear-gradient(90deg, #4E6B66, #6E9189);}
+  @media (prefers-reduced-motion: reduce){ .balken span{transition:none;} }
 
   /* Plan: am Desktop wie die Excel-Tabelle, auf dem Handy eine Karte je Schicht */
   .plan{border:1px solid var(--line); background:#fff; border-radius:var(--radius);}
@@ -108,7 +117,7 @@
     .kopf img{filter:none;}
     h1, .datum, .eyebrow{color:var(--ink);}
     main{padding:0;}
-    .hinweis, .status, .aktionen, .admin-hinweis, .mini, .zaehler{display:none !important;}
+    .hinweis, .status, .aktionen, .admin-hinweis, .mini, .fortschritt{display:none !important;}
     .frei{border:none; color:transparent;}
     .kopfzeile{background:none; color:var(--ink); border-bottom:2px solid var(--ink);}
     .plan, .zeile, .zelle{border-color:#999 !important;}
@@ -137,7 +146,10 @@
 
   <div class="status" id="status" role="status" aria-live="polite">Dienstplan wird geladen …</div>
 
-  <p class="zaehler" id="zaehler" hidden></p>
+  <div class="fortschritt" id="fortschritt" hidden>
+    <div class="fortschritt-text"><span id="zaehler"></span><strong id="prozent"></strong></div>
+    <div class="balken" id="balken" role="progressbar" aria-label="Belegte Plätze" aria-valuemin="0"><span id="balkenFill"></span></div>
+  </div>
   <div class="plan" id="plan" hidden></div>
 
   <p class="admin-hinweis" id="adminHinweis" hidden>Verwaltungsmodus: Einträge können geändert und gelöscht werden.</p>
@@ -262,12 +274,25 @@
       planEl.appendChild(row);
     });
 
-    $('zaehler').textContent = `${filled} von ${total} Plätzen belegt`;
-    $('zaehler').hidden = false;
+    updateProgress(filled, total);
     planEl.hidden = false;
     $('aktionen').hidden = false;
     $('adminHinweis').hidden = !adminCode;
     $('adminBtn').textContent = adminCode ? 'Verwaltung beenden' : 'Verwaltung';
+  }
+
+  function updateProgress(filled, total) {
+    const percent = total ? Math.round((filled / total) * 100) : 0;
+    const full = total > 0 && filled >= total;
+    $('zaehler').textContent = full ? 'Alle Plätze belegt — danke!' : `${filled} von ${total} Plätzen belegt`;
+    $('prozent').textContent = `${percent} %`;
+    const bar = $('balken');
+    bar.setAttribute('aria-valuemax', String(total));
+    bar.setAttribute('aria-valuenow', String(filled));
+    bar.setAttribute('aria-valuetext', `${filled} von ${total} Plätzen belegt`);
+    $('balkenFill').style.width = percent + '%';
+    $('fortschritt').classList.toggle('voll', full);
+    $('fortschritt').hidden = false;
   }
 
   function renderSeat(seat, name, open) {
@@ -373,7 +398,7 @@
       if (!result.ok) {
         planEl.hidden = true;
         $('aktionen').hidden = true;
-        $('zaehler').hidden = true;
+        $('fortschritt').hidden = true;
         const plan = result.json.plan;
         if (plan) { $('titel').textContent = plan.title; $('datum').textContent = formatDate(plan.date); }
         setStatus(MESSAGES[result.json.reason] || 'Der Dienstplan konnte nicht geladen werden.', true);
