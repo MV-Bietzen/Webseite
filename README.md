@@ -64,3 +64,28 @@ Instagram muss in beiden Fällen ein Business- oder Creator-Konto sein. Aktuelle
 (nur die gerade online sind) erscheinen als Story-Kreis über dem Instagram-Raster und
 verschwinden auf der Seite automatisch nach 24 Stunden. Läuft der Token ab, bleibt der letzte Stand sichtbar. Den Grund für
 fehlende Beiträge zeigen `/api/facebook` bzw. `/api/instagram` im Feld `reason`.
+
+## Dienstplan (`dienstplan.html`)
+
+Nicht verlinkte Seite, auf der sich Helfer für Veranstaltungen eintragen. Der Link
+lautet `https://mv-bietzen.de/dienstplan.html#SCHLÜSSEL` — ohne den richtigen Schlüssel
+hinter dem `#` zeigt die Seite nur einen Hinweis. Daten liegen in Netlify Blobs (Store
+`dienstplan`), Schnittstelle ist die Function `/api/dienstplan`.
+
+- Jeder mit Link kann sich in ein **freies** Feld eintragen; belegte Felder können nicht
+  überschrieben werden (auch nicht bei gleichzeitigem Eintragen).
+- Ändern und Löschen nur über „Verwaltung“ mit dem Verwaltungs-Code.
+- Export als CSV (öffnet in Excel) und Druckansicht.
+- Eintragen bis zum Ende des Veranstaltungstags; 30 Tage danach löscht die tägliche
+  Function `dienstplan-cleanup` alle Namen.
+
+Umgebungsvariablen in Netlify (beide als *Secret*, danach neu deployen):
+
+- `DIENSTPLAN_KEY` — Schlüssel für den Link (lang und zufällig, z. B. 20 Zeichen)
+- `DIENSTPLAN_ADMIN_CODE` — Verwaltungs-Code für Ändern/Löschen
+
+Neue Veranstaltung: in `netlify/lib/dienstplan.mjs` das Objekt `PLAN` anpassen
+(**neue `id`**, Titel, Datum, Stationen, Schichten, Plätze je Feld). Eine Schicht mit
+`together: true, seats: 6` hat keine Aufteilung nach Stationen (z. B. Abbau). Einträge alter
+Veranstaltungen werden dann automatisch gelöscht. Für einen neuen Link einfach
+`DIENSTPLAN_KEY` ändern.

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dienstplan — Musikverein Cäcilia 1907 Bietzen e.V.</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<meta name="theme-color" content="#6B1220">
+<style>
+  @font-face{font-family:'Vereinsserif'; src:url("assets/fonts/vereinsserif.woff") format("woff"); font-weight:400 700; font-display:swap;}
+  @font-face{font-family:'Vereinssans'; src:url("assets/fonts/vereinssans-400.woff") format("woff"); font-weight:400; font-display:swap;}
+  @font-face{font-family:'Vereinscond'; src:url("assets/fonts/vereinscond-400.woff") format("woff"); font-weight:400; font-display:swap;}
+
+  :root{
+    --burgundy:#6B1220; --burgundy-deep:#430B14; --gold:#C9A227; --gold-light:#E4C767;
+    --cream:#F7F3EA; --cream-2:#EFE8D8; --ink:#241012; --ink-soft:#4A3438; --line:rgba(107,18,32,0.16); --radius:2px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  [hidden]{display:none !important;}
+  body{font-family:'Vereinssans', Arial, sans-serif; color:var(--ink); background:var(--cream); line-height:1.5;}
+  button, input{font:inherit;}
+
+  .kopf{
+    background:linear-gradient(165deg, var(--burgundy) 0%, var(--burgundy-deep) 85%); color:var(--cream);
+    padding:2rem 1.5rem 2.2rem;
+  }
+  .kopf-inner{max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:1.4rem;}
+  .kopf img{width:72px; height:72px; flex:none; filter:drop-shadow(0 8px 18px rgba(0,0,0,0.3));}
+  .eyebrow{font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.18em; font-size:0.8rem; color:var(--gold-light);}
+  h1{font-family:'Vereinsserif', Georgia, serif; font-size:clamp(1.6rem, 4.5vw, 2.4rem); line-height:1.15; color:#fff;}
+  .datum{color:#E7D9D3; margin-top:0.2rem;}
+
+  main{max-width:1100px; margin:0 auto; padding:1.8rem 1.5rem 3rem;}
+  .hinweis{max-width:46rem; color:var(--ink-soft);}
+  .status{margin:1.2rem 0; padding:0.8rem 1rem; border-left:3px solid var(--gold); background:#fff; border-radius:var(--radius);}
+  .status.fehler{border-left-color:var(--burgundy); color:var(--burgundy);}
+  .fortschritt{margin:1.4rem 0 1rem;}
+  .fortschritt-text{
+    display:flex; justify-content:space-between; gap:1rem; margin-bottom:0.45rem;
+    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.85rem; color:var(--ink-soft);
+  }
+  .fortschritt-text strong{font-weight:400; color:#3C7443;}
+  .balken{height:10px; background:var(--cream-2); border:1px solid var(--line); border-radius:999px; overflow:hidden;}
+  .balken span{display:block; height:100%; width:0; background:linear-gradient(90deg, #4F8A55, #7DB46F); border-radius:999px; transition:width 0.6s ease;}
+  .fortschritt.voll .balken span{background:linear-gradient(90deg, #3C7443, #5E9E58);}
+  @media (prefers-reduced-motion: reduce){ .balken span{transition:none;} }
+
+  /* Plan: am Desktop wie die Excel-Tabelle, auf dem Handy eine Karte je Schicht */
+  .plan{border:1px solid var(--line); background:#fff; border-radius:var(--radius);}
+  .zeile{display:grid; grid-template-columns:var(--cols);}
+  .zeile + .zeile{border-top:1px solid var(--line);}
+  .kopfzeile{background:var(--burgundy); color:var(--cream);}
+  .kopfzeile div{padding:0.7rem 1rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.85rem;}
+  .schicht{padding:1rem; font-family:'Vereinsserif', Georgia, serif; font-weight:600; color:var(--burgundy); background:var(--cream-2);}
+  .zelle{padding:0.7rem 0.8rem; border-left:1px solid var(--line);}
+  .zelle-station{display:none;}
+  .zelle-gemeinsam{grid-column:2 / -1;}
+  .zelle-gemeinsam .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
+  .zelle-gemeinsam .plaetze{display:grid; grid-template-columns:repeat(var(--stations, 3), 1fr); column-gap:1.6rem;}
+  .plaetze{list-style:none; display:flex; flex-direction:column; gap:0.4rem;}
+  .platz{min-height:2.4rem; display:flex; align-items:center; gap:0.4rem;}
+  .name{flex:1; padding:0.45rem 0.7rem; background:var(--cream); border-radius:var(--radius); overflow-wrap:anywhere;}
+  .frei{
+    flex:1; text-align:left; padding:0.45rem 0.7rem; border:1px dashed rgba(107,18,32,0.35); background:transparent;
+    color:var(--burgundy); cursor:pointer; border-radius:var(--radius);
+  }
+  .frei:hover, .frei:focus-visible{background:rgba(201,162,39,0.12); border-color:var(--gold); outline:none;}
+  .leer{flex:1; padding:0.45rem 0.7rem; color:#9b8a8c;}
+  .mini{
+    border:1px solid var(--line); background:#fff; color:var(--ink-soft); cursor:pointer;
+    padding:0.35rem 0.55rem; border-radius:var(--radius); font-size:0.85rem; line-height:1.2;
+  }
+  .mini:hover, .mini:focus-visible{border-color:var(--burgundy); color:var(--burgundy);}
+  .eingabe{flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:0.4rem;}
+  .eingabe input{flex:1 1 9rem; min-width:0; padding:0.45rem 0.6rem; border:1px solid var(--gold); border-radius:var(--radius); background:#fff;}
+  .eingabe input:focus{outline:2px solid var(--gold-light); outline-offset:1px;}
+  .eingabe small{flex-basis:100%; color:var(--ink-soft); font-size:0.8rem;}
+  .btn{
+    border:none; cursor:pointer; padding:0.5rem 0.9rem; border-radius:var(--radius);
+    font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.08em; font-size:0.85rem;
+  }
+  .btn-gold{background:var(--gold); color:var(--ink);}
+  .btn-gold:hover{background:var(--gold-light);}
+  .btn-leise{background:transparent; color:var(--ink-soft); border:1px solid var(--line);}
+  .btn-leise:hover{border-color:var(--burgundy); color:var(--burgundy);}
+
+  .aktionen{display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1.4rem; align-items:center;}
+  .aktionen .rechts{margin-left:auto;}
+  .admin-hinweis{margin-top:1rem; color:var(--burgundy); font-size:0.9rem;}
+
+  dialog{border:none; border-radius:var(--radius); padding:1.6rem; max-width:22rem; width:calc(100% - 2rem); box-shadow:0 20px 60px rgba(0,0,0,0.35);}
+  dialog::backdrop{background:rgba(36,16,18,0.55);}
+  dialog h2{font-family:'Vereinsserif', Georgia, serif; color:var(--burgundy); font-size:1.3rem; margin-bottom:0.6rem;}
+  dialog input{width:100%; margin:0.8rem 0; padding:0.55rem 0.7rem; border:1px solid var(--gold); border-radius:var(--radius);}
+  dialog .knoepfe{display:flex; gap:0.5rem; justify-content:flex-end;}
+  dialog .fehler{color:var(--burgundy); font-size:0.9rem;}
+
+  @media (max-width:720px){
+    .kopf-inner{gap:1rem;}
+    .kopf img{width:56px; height:56px;}
+    .plan{border:none; background:transparent;}
+    .zeile.kopfzeile{display:none;}
+    .zeile{display:block; background:#fff; border:1px solid var(--line); border-radius:var(--radius);}
+    .zeile + .zeile{border-top:1px solid var(--line); margin-top:1rem;}
+    .schicht{padding:0.8rem 1rem;}
+    .zelle{border-left:none; border-top:1px solid var(--line); padding:0.8rem 1rem;}
+    .eingabe input{flex-basis:100%;}
+    .zelle-gemeinsam .plaetze{display:flex;}
+    .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
+  }
+
+  @media print{
+    body{background:#fff;}
+    .kopf{background:none; color:var(--ink); padding:0 0 1rem;}
+    .kopf img{filter:none;}
+    h1, .datum, .eyebrow{color:var(--ink);}
+    main{padding:0;}
+    .hinweis, .status, .aktionen, .admin-hinweis, .mini, .fortschritt{display:none !important;}
+    .frei{border:none; color:transparent;}
+    .kopfzeile{background:none; color:var(--ink); border-bottom:2px solid var(--ink);}
+    .plan, .zeile, .zelle{border-color:#999 !important;}
+    .zeile{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="kopf-inner">
+    <a href="/" aria-label="Zur Startseite"><img src="assets/wappen-verein.png" alt="" width="72" height="72"></a>
+    <div>
+      <p class="eyebrow">Dienstplan · MV Cäcilia Bietzen</p>
+      <h1 id="titel">Dienstplan</h1>
+      <p class="datum" id="datum"></p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <p class="hinweis">
+    Bitte trag dich in ein freies Feld ein. Einmal gespeichert, kann ein Eintrag nur noch vom Vorstand
+    geändert oder gelöscht werden — melde dich dafür einfach bei uns. Danke fürs Mithelfen!
+  </p>
+
+  <div class="status" id="status" role="status" aria-live="polite">Dienstplan wird geladen …</div>
+
+  <div class="fortschritt" id="fortschritt" hidden>
+    <div class="fortschritt-text"><span id="zaehler"></span><strong id="prozent"></strong></div>
+    <div class="balken" id="balken" role="progressbar" aria-label="Belegte Plätze" aria-valuemin="0"><span id="balkenFill"></span></div>
+  </div>
+  <div class="plan" id="plan" hidden></div>
+
+  <p class="admin-hinweis" id="adminHinweis" hidden>Verwaltungsmodus: Einträge können geändert und gelöscht werden.</p>
+
+  <div class="aktionen" id="aktionen" hidden>
+    <button class="btn btn-leise" type="button" id="csvBtn">Als Excel-Datei (CSV)</button>
+    <button class="btn btn-leise" type="button" id="druckBtn">Drucken</button>
+    <button class="btn btn-leise rechts" type="button" id="adminBtn">Verwaltung</button>
+  </div>
+</main>
+
+<dialog id="adminDialog" aria-labelledby="adminTitel">
+  <form id="adminForm">
+    <h2 id="adminTitel">Verwaltung</h2>
+    <p>Mit dem Verwaltungs-Code können Einträge geändert und gelöscht werden.</p>
+    <input type="password" id="adminCode" autocomplete="current-password" aria-label="Verwaltungs-Code" required>
+    <p class="fehler" id="adminFehler" hidden>Der Code stimmt nicht.</p>
+    <div class="knoepfe">
+      <button class="btn btn-leise" type="button" id="adminAbbrechen">Abbrechen</button>
+      <button class="btn btn-gold" type="submit">Anmelden</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+
+  // Der Zugangsschlüssel steht hinter dem # im Link und wird nie an andere
+  // Seiten weitergegeben (der Teil hinter # landet auch nicht in Server-Logs).
+  const key = decodeURIComponent(location.hash.slice(1)).trim();
+  let adminCode = ''; // nur im Speicher, wird nirgends abgelegt
+  let data = null;
+  let editing = null; // { seat, mode: 'add' | 'set' }
+
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $('status');
+  const planEl = $('plan');
+
+  function setStatus(text, isError) {
+    statusEl.textContent = text;
+    statusEl.classList.toggle('fehler', Boolean(isError));
+    statusEl.hidden = !text;
+  }
+
+  const MESSAGES = {
+    'invalid-key': 'Dieser Link ist ungültig oder unvollständig. Bitte verwende den Link aus der Vereinsgruppe.',
+    'not-configured': 'Der Dienstplan ist noch nicht freigeschaltet.',
+    expired: 'Diese Veranstaltung ist vorbei — der Dienstplan wurde gelöscht.',
+    taken: 'Dieser Platz wurde gerade von jemand anderem belegt. Bitte such dir einen anderen freien Platz aus.',
+    'bad-name': 'Bitte nur deinen Namen eintragen (2–40 Zeichen, beginnend mit einem Buchstaben).',
+    closed: 'Die Veranstaltung ist vorbei — Eintragen ist nicht mehr möglich.',
+    'admin-only': 'Ändern und Löschen ist nur mit dem Verwaltungs-Code möglich.',
+  };
+
+  async function api(method, body) {
+    const headers = { 'X-Dienstplan-Key': key };
+    if (adminCode) headers['X-Dienstplan-Admin'] = adminCode;
+    if (body) headers['Content-Type'] = 'application/json';
+    const res = await fetch('/api/dienstplan', { method, headers, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
+    const json = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, json };
+  }
+
+  function seatId(shift, station, index) { return `${shift.id}/${station.id}/${index}`; }
+
+  // Felder einer Schicht: je Station, oder ein gemeinsames Feld (together).
+  function cellsFor(shift, plan) {
+    if (shift.together) return [{ station: { id: 'alle', name: 'Alle Stationen gemeinsam' }, seats: shift.seats || plan.seats, together: true }];
+    return plan.stations.map((station) => ({ station, seats: plan.seats, together: false }));
+  }
+
+  function formatDate(iso) {
+    const date = new Date(iso + 'T12:00:00');
+    return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  }
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function render() {
+    const { plan, entries } = data;
+    document.title = `Dienstplan ${plan.title} — MV Cäcilia Bietzen`;
+    $('titel').textContent = plan.title;
+    $('datum').textContent = formatDate(plan.date);
+
+    planEl.style.setProperty('--cols', `minmax(9rem, 0.8fr) repeat(${plan.stations.length}, 1fr)`);
+    planEl.style.setProperty('--stations', plan.stations.length);
+    planEl.replaceChildren();
+
+    const head = el('div', 'zeile kopfzeile');
+    head.setAttribute('aria-hidden', 'true');
+    head.appendChild(el('div', '', 'Uhrzeit'));
+    plan.stations.forEach((station) => head.appendChild(el('div', '', station.name)));
+    planEl.appendChild(head);
+
+    let filled = 0;
+    let total = 0;
+    plan.shifts.forEach((shift) => {
+      const row = el('section', 'zeile');
+      row.setAttribute('aria-label', shift.label);
+      row.appendChild(el('div', 'schicht', shift.label));
+      cellsFor(shift, plan).forEach(({ station, seats, together }) => {
+        const cell = el('div', together ? 'zelle zelle-gemeinsam' : 'zelle');
+        cell.appendChild(el('div', 'zelle-station', station.name));
+        const list = el('ul', 'plaetze');
+        list.setAttribute('aria-label', `${station.name}, ${shift.label}`);
+        for (let i = 0; i < seats; i++) {
+          const seat = seatId(shift, station, i);
+          const name = entries[seat];
+          total++;
+          if (name) filled++;
+          list.appendChild(renderSeat(seat, name, plan.open));
+        }
+        cell.appendChild(list);
+        row.appendChild(cell);
+      });
+      planEl.appendChild(row);
+    });
+
+    updateProgress(filled, total);
+    planEl.hidden = false;
+    $('aktionen').hidden = false;
+    $('adminHinweis').hidden = !adminCode;
+    $('adminBtn').textContent = adminCode ? 'Verwaltung beenden' : 'Verwaltung';
+  }
+
+  function updateProgress(filled, total) {
+    const percent = total ? Math.round((filled / total) * 100) : 0;
+    const full = total > 0 && filled >= total;
+    $('zaehler').textContent = full ? 'Alle Plätze belegt — danke!' : `${filled} von ${total} Plätzen belegt`;
+    $('prozent').textContent = `${percent} %`;
+    const bar = $('balken');
+    bar.setAttribute('aria-valuemax', String(total));
+    bar.setAttribute('aria-valuenow', String(filled));
+    bar.setAttribute('aria-valuetext', `${filled} von ${total} Plätzen belegt`);
+    $('balkenFill').style.width = percent + '%';
+    $('fortschritt').classList.toggle('voll', full);
+    $('fortschritt').hidden = false;
+  }
+
+  function renderSeat(seat, name, open) {
+    const li = el('li', 'platz');
+    if (editing && editing.seat === seat) {
+      li.appendChild(renderForm(seat, editing.mode === 'set' ? name : ''));
+      return li;
+    }
+    if (name) {
+      li.appendChild(el('span', 'name', name));
+      if (adminCode) {
+        const edit = el('button', 'mini', '✎');
+        edit.type = 'button';
+        edit.setAttribute('aria-label', `${name} ändern`);
+        edit.addEventListener('click', () => { editing = { seat, mode: 'set' }; render(); focusInput(); });
+        const del = el('button', 'mini', '✕');
+        del.type = 'button';
+        del.setAttribute('aria-label', `${name} löschen`);
+        del.addEventListener('click', () => removeEntry(seat, name));
+        li.append(edit, del);
+      }
+    } else if (open || adminCode) {
+      const btn = el('button', 'frei', '+ Eintragen');
+      btn.type = 'button';
+      btn.addEventListener('click', () => { editing = { seat, mode: adminCode ? 'set' : 'add' }; render(); focusInput(); });
+      li.appendChild(btn);
+    } else {
+      li.appendChild(el('span', 'leer', '—'));
+    }
+    return li;
+  }
+
+  function renderForm(seat, value) {
+    const form = el('form', 'eingabe');
+    const input = el('input');
+    input.type = 'text';
+    input.maxLength = 40;
+    input.required = true;
+    input.autocomplete = 'name';
+    input.placeholder = 'Vor- und Nachname';
+    input.value = value || '';
+    input.setAttribute('aria-label', 'Name');
+    const save = el('button', 'btn btn-gold', 'Speichern');
+    save.type = 'submit';
+    const cancel = el('button', 'btn btn-leise', 'Abbrechen');
+    cancel.type = 'button';
+    cancel.addEventListener('click', () => { editing = null; render(); });
+    form.append(input, save, cancel);
+    if (!adminCode) form.appendChild(el('small', '', 'Ändern danach nur über den Vorstand.'));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      saveEntry(seat, input.value, save);
+    });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Escape') { editing = null; render(); } });
+    return form;
+  }
+
+  function focusInput() {
+    const input = planEl.querySelector('.eingabe input');
+    if (input) input.focus();
+  }
+
+  function handleResult(result, successText) {
+    if (result.json && result.json.plan && result.json.entries) data = result.json;
+    if (result.ok) {
+      editing = null;
+      render();
+      setStatus(successText, false);
+      return true;
+    }
+    const reason = result.json && result.json.reason;
+    if (reason === 'taken') editing = null;
+    if (data) render();
+    setStatus(MESSAGES[reason] || 'Das hat leider nicht geklappt. Bitte versuch es noch einmal.', true);
+    if (reason === 'bad-name') focusInput();
+    return false;
+  }
+
+  async function saveEntry(seat, name, button) {
+    button.disabled = true;
+    try {
+      const action = editing && editing.mode === 'set' ? 'set' : 'add';
+      const result = await api('POST', { action, seat, name });
+      handleResult(result, `Danke, ${name.trim()}! Du bist eingetragen.`);
+    } catch {
+      button.disabled = false;
+      setStatus('Keine Verbindung — bitte prüf deine Internetverbindung und versuch es noch einmal.', true);
+    }
+  }
+
+  async function removeEntry(seat, name) {
+    if (!confirm(`Eintrag „${name}“ wirklich löschen?`)) return;
+    try {
+      handleResult(await api('POST', { action: 'delete', seat }), `„${name}“ wurde gelöscht.`);
+    } catch {
+      setStatus('Keine Verbindung — bitte versuch es noch einmal.', true);
+    }
+  }
+
+  async function load(initial) {
+    try {
+      const result = await api('GET');
+      if (!result.ok) {
+        planEl.hidden = true;
+        $('aktionen').hidden = true;
+        $('fortschritt').hidden = true;
+        const plan = result.json.plan;
+        if (plan) { $('titel').textContent = plan.title; $('datum').textContent = formatDate(plan.date); }
+        setStatus(MESSAGES[result.json.reason] || 'Der Dienstplan konnte nicht geladen werden.', true);
+        return;
+      }
+      data = result.json;
+      if (!editing) render();
+      if (initial) setStatus(data.plan.open ? '' : MESSAGES.closed, !data.plan.open);
+    } catch {
+      if (initial) setStatus('Der Dienstplan konnte nicht geladen werden. Bitte später noch einmal versuchen.', true);
+    }
+  }
+
+  // CSV im Aufbau der Excel-Vorlage: Zeilen = Uhrzeit × Platz, Spalten = Stationen.
+  function downloadCsv() {
+    if (!data) return;
+    const { plan, entries } = data;
+    const q = (v) => `"${String(v || '').replace(/"/g, '""')}"`;
+    const lines = [[plan.title + ' – ' + formatDate(plan.date)].map(q).join(';'), '',
+      ['Uhrzeit', ...plan.stations.map((s) => s.name)].map(q).join(';')];
+    plan.shifts.forEach((shift) => {
+      if (shift.together) {
+        // gemeinsame Schicht: Namen der Reihe nach über die Spalten verteilen
+        const cols = plan.stations.length;
+        const all = { id: 'alle' };
+        const seats = shift.seats || plan.seats;
+        for (let row = 0; row * cols < seats; row++) {
+          const names = [];
+          for (let c = 0; c < cols && row * cols + c < seats; c++) names.push(entries[seatId(shift, all, row * cols + c)]);
+          lines.push([row === 0 ? shift.label + ' (alle Stationen)' : '', ...names].map(q).join(';'));
+        }
+        return;
+      }
+      for (let i = 0; i < plan.seats; i++) {
+        lines.push([i === 0 ? shift.label : '', ...plan.stations.map((s) => entries[seatId(shift, s, i)])].map(q).join(';'));
+      }
+    });
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Dienstplan-${plan.title.replace(/\s+/g, '-')}-${plan.date}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  $('csvBtn').addEventListener('click', downloadCsv);
+  $('druckBtn').addEventListener('click', () => window.print());
+
+  const dialog = $('adminDialog');
+  $('adminBtn').addEventListener('click', () => {
+    if (adminCode) {
+      adminCode = '';
+      editing = null;
+      render();
+      setStatus('Verwaltung beendet.', false);
+      return;
+    }
+    $('adminCode').value = '';
+    $('adminFehler').hidden = true;
+    dialog.showModal();
+  });
+  $('adminAbbrechen').addEventListener('click', () => dialog.close());
+  $('adminForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = $('adminCode').value;
+    const previous = adminCode;
+    adminCode = code;
+    try {
+      const result = await api('POST', { action: 'admin-check' });
+      if (result.ok && result.json.admin) {
+        dialog.close();
+        editing = null;
+        render();
+        setStatus('Verwaltung aktiv.', false);
+        return;
+      }
+    } catch { /* unten */ }
+    adminCode = previous;
+    $('adminFehler').hidden = false;
+  });
+
+  if (!key) {
+    setStatus(MESSAGES['invalid-key'], true);
+    return;
+  }
+  load(true);
+  // Alle 30 Sekunden aktualisieren, damit man Einträge anderer sieht
+  // (nicht während man selbst tippt oder die Seite im Hintergrund ist).
+  setInterval(() => { if (!editing && document.visibilityState === 'visible') load(false); }, 30000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !editing) load(false); });
+})();
+</script>
+</body>
+</html>
