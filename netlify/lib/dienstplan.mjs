@@ -16,7 +16,7 @@ export const PLAN = {
   id: 'weihnachtsmarkt-2027',
   title: 'Bietzer Weihnachtsmarkt',
   date: '2027-12-06',
-  seats: 3,
+  seats: 2,
   stations: [
     { id: 'burger', name: 'Burger' },
     { id: 'puffer', name: 'Kartoffelpuffer' },
