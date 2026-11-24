@@ -112,14 +112,14 @@
     .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
   }
 
-  /* Druck: wie eine Excel-Tabelle, eine DIN-A4-Seite hoch */
-  @page{size:A4 portrait; margin:12mm 12mm 14mm;}
+  /* Druck: wie eine Excel-Tabelle, eine DIN-A4-Seite quer */
+  @page{size:A4 landscape; margin:10mm 12mm;}
   @media print{
     html, body{background:#fff; color:#000; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
     body{font-family:Arial, Helvetica, sans-serif; font-size:10.5pt;}
-    .kopf{background:none; color:#000; padding:0 0 5mm;}
+    .kopf{background:none; color:#000; padding:0 0 4mm;}
     .kopf-inner{max-width:none; gap:4mm;}
-    .kopf img{width:16mm; height:16mm; filter:none;}
+    .kopf img{width:14mm; height:14mm; filter:none;}
     .eyebrow{color:#555; font-size:8pt; letter-spacing:0.12em;}
     h1{color:#000; font-size:18pt;}
     .datum{color:#000; font-size:11pt; margin:0;}
@@ -128,7 +128,7 @@
     .hinweis, .status, .aktionen, .admin-hinweis, .mini, .fortschritt, .zelle-station, .eingabe{display:none !important;}
 
     .plan{border:1px solid #000; border-radius:0; background:#fff;}
-    .zeile{grid-template-columns:44mm repeat(var(--stations, 3), 1fr); break-inside:avoid;}
+    .zeile{grid-template-columns:52mm repeat(var(--stations, 3), 1fr); break-inside:avoid;}
     .zeile + .zeile{border-top:1px solid #000;}
     .kopfzeile{background:#D9D9D9; color:#000;}
     .kopfzeile div{
@@ -140,7 +140,7 @@
     .schicht-zusatz{display:block; font-weight:400; font-size:9pt; margin-top:1mm;}
     .zelle{padding:0; border-left:1px solid #000; display:flex; flex-direction:column;}
     .plaetze{gap:0; flex:1; display:flex; flex-direction:column;}
-    .platz{flex:1; min-height:18mm; padding:0 2.5mm; border-bottom:1px solid #A6A6A6;}
+    .platz{flex:1; min-height:14.5mm; padding:0 2.5mm; border-bottom:1px solid #A6A6A6;}
     .platz:last-child{border-bottom:none;}
     .name{background:none; padding:0; border-radius:0; font-size:11pt; color:#000;}
     .frei, .leer{visibility:hidden;}

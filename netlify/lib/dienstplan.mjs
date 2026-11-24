@@ -13,9 +13,10 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 
 export const PLAN = {
+  // id bleibt (interne Kennung, schon eingetragene Namen hängen daran)
   id: 'weihnachtsmarkt-2027',
   title: 'Bietzer Weihnachtsmarkt',
-  date: '2027-12-06',
+  date: '2026-12-06',
   seats: 2,
   stations: [
     { id: 'burger', name: 'Burger' },
