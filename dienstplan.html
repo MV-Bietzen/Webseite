@@ -56,6 +56,7 @@
   .schicht{padding:1rem; font-family:'Vereinsserif', Georgia, serif; font-weight:600; color:var(--burgundy); background:var(--cream-2);}
   .zelle{padding:0.7rem 0.8rem; border-left:1px solid var(--line);}
   .zelle-station{display:none;}
+  .schicht-zusatz, .druck-stand{display:none;}
   .zelle-gemeinsam{grid-column:2 / -1;}
   .zelle-gemeinsam .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
   .zelle-gemeinsam .plaetze{display:grid; grid-template-columns:repeat(var(--stations, 3), 1fr); column-gap:1.6rem;}
@@ -97,7 +98,7 @@
   dialog .knoepfe{display:flex; gap:0.5rem; justify-content:flex-end;}
   dialog .fehler{color:var(--burgundy); font-size:0.9rem;}
 
-  @media (max-width:720px){
+  @media screen and (max-width:720px){
     .kopf-inner{gap:1rem;}
     .kopf img{width:56px; height:56px;}
     .plan{border:none; background:transparent;}
@@ -111,17 +112,43 @@
     .zelle-station{display:block; margin-bottom:0.4rem; font-family:'Vereinscond', 'Arial Narrow', sans-serif; text-transform:uppercase; letter-spacing:0.1em; font-size:0.8rem; color:var(--ink-soft);}
   }
 
+  /* Druck: wie eine Excel-Tabelle, eine DIN-A4-Seite hoch */
+  @page{size:A4 portrait; margin:12mm 12mm 14mm;}
   @media print{
-    body{background:#fff;}
-    .kopf{background:none; color:var(--ink); padding:0 0 1rem;}
-    .kopf img{filter:none;}
-    h1, .datum, .eyebrow{color:var(--ink);}
-    main{padding:0;}
-    .hinweis, .status, .aktionen, .admin-hinweis, .mini, .fortschritt{display:none !important;}
-    .frei{border:none; color:transparent;}
-    .kopfzeile{background:none; color:var(--ink); border-bottom:2px solid var(--ink);}
-    .plan, .zeile, .zelle{border-color:#999 !important;}
-    .zeile{break-inside:avoid;}
+    html, body{background:#fff; color:#000; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    body{font-family:Arial, Helvetica, sans-serif; font-size:10.5pt;}
+    .kopf{background:none; color:#000; padding:0 0 5mm;}
+    .kopf-inner{max-width:none; gap:4mm;}
+    .kopf img{width:16mm; height:16mm; filter:none;}
+    .eyebrow{color:#555; font-size:8pt; letter-spacing:0.12em;}
+    h1{color:#000; font-size:18pt;}
+    .datum{color:#000; font-size:11pt; margin:0;}
+    .druck-stand{display:block; color:#555; font-size:8pt; margin-top:1mm;}
+    main{max-width:none; padding:0;}
+    .hinweis, .status, .aktionen, .admin-hinweis, .mini, .fortschritt, .zelle-station, .eingabe{display:none !important;}
+
+    .plan{border:1px solid #000; border-radius:0; background:#fff;}
+    .zeile{grid-template-columns:44mm repeat(var(--stations, 3), 1fr); break-inside:avoid;}
+    .zeile + .zeile{border-top:1px solid #000;}
+    .kopfzeile{background:#D9D9D9; color:#000;}
+    .kopfzeile div{
+      padding:2mm 2.5mm; border-left:1px solid #000;
+      font-family:Arial, Helvetica, sans-serif; font-weight:700; font-size:10.5pt; letter-spacing:0; text-transform:none;
+    }
+    .kopfzeile div:first-child{border-left:none;}
+    .schicht{background:#F2F2F2; color:#000; padding:2mm 2.5mm; font-family:Arial, Helvetica, sans-serif; font-size:10.5pt; font-weight:700;}
+    .schicht-zusatz{display:block; font-weight:400; font-size:9pt; margin-top:1mm;}
+    .zelle{padding:0; border-left:1px solid #000; display:flex; flex-direction:column;}
+    .plaetze{gap:0; flex:1; display:flex; flex-direction:column;}
+    .platz{flex:1; min-height:18mm; padding:0 2.5mm; border-bottom:1px solid #A6A6A6;}
+    .platz:last-child{border-bottom:none;}
+    .name{background:none; padding:0; border-radius:0; font-size:11pt; color:#000;}
+    .frei, .leer{visibility:hidden;}
+    /* Abbau: gemeinsame Plätze im selben Raster wie die Stationsspalten */
+    .zelle-gemeinsam .plaetze{display:grid; grid-auto-rows:1fr; column-gap:0;}
+    .zelle-gemeinsam{border-left:none;}
+    .zelle-gemeinsam .platz{border-left:1px solid #000;}
+    .zelle-gemeinsam .platz:nth-last-child(-n+3){border-bottom:none;}
   }
 </style>
 </head>
@@ -134,6 +161,7 @@
       <p class="eyebrow">Dienstplan · MV Cäcilia Bietzen</p>
       <h1 id="titel">Dienstplan</h1>
       <p class="datum" id="datum"></p>
+      <p class="druck-stand" id="druckStand"></p>
     </div>
   </div>
 </header>
@@ -255,7 +283,9 @@
     plan.shifts.forEach((shift) => {
       const row = el('section', 'zeile');
       row.setAttribute('aria-label', shift.label);
-      row.appendChild(el('div', 'schicht', shift.label));
+      const label = el('div', 'schicht', shift.label);
+      if (shift.together) label.appendChild(el('span', 'schicht-zusatz', 'alle Stationen gemeinsam'));
+      row.appendChild(label);
       cellsFor(shift, plan).forEach(({ station, seats, together }) => {
         const cell = el('div', together ? 'zelle zelle-gemeinsam' : 'zelle');
         cell.appendChild(el('div', 'zelle-station', station.name));
@@ -275,6 +305,7 @@
     });
 
     updateProgress(filled, total);
+    $('druckStand').textContent = 'Stand: ' + new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()) + ' Uhr';
     planEl.hidden = false;
     $('aktionen').hidden = false;
     $('adminHinweis').hidden = !adminCode;
